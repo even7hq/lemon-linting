@@ -1,0 +1,11 @@
+{
+  "name": "@lucymaker/linting",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "author": "Matheus Giovani <matheus+devambient@edjdigital.com.br>",
+  "dependencies": {
+    "eslint": "^8.33.0",
+    "eslint-plugin-vue": "^9.9.0"
+  }
+}
