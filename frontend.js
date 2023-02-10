@@ -1,20 +1,40 @@
 require("@rushstack/eslint-patch/modern-module-resolution");
 
 module.exports = {
+    root: true,
+
+    env: {
+        node: true
+    },
+
     extends: [
-        __dirname + "/common",
+        require.resolve("./common"),
+        "plugin:vue/essential",
         "plugin:vue/recommended",
-        "@vue/eslint-config-typescript/recommended"
+        "@vue/eslint-config-typescript"
     ],
-    plugins: ["vue"],
+
+    plugins: [
+        "vue"
+    ],
+
     rules: {
         // Disable some unused rules
         "vue/multi-word-component-names": "off",
         "vue/require-default-prop": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+
+        "vue/singleline-html-element-content-newline": "warn",
+        "vue/multiline-html-element-content-newline": "warn",
+
+        "vue/html-self-closing": ["warn", {
+            "i": "any"
+        }],
 
         "vue/html-quotes": "error",
         "vue/component-definition-name-casing": ["error", "PascalCase"],
-        "vue/html-self-closing": "warn",
+        "vue/html-self-closing": "off",
         "vue/html-closing-bracket-newline": "error",
         "vue/first-attribute-linebreak": "error",
         "vue/html-closing-bracket-spacing": "error",
