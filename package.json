@@ -5,6 +5,12 @@
   "license": "UNLICENSED",
   "author": "Matheus Giovani <matheus+devambient@edjdigital.com.br>",
   "repository": "https://github.com/edjdigital/luckymaker-linting",
+  "exports": {
+    ".": "./index.js",
+    "./frontend": "./frontend.js",
+    "./backend": "./backend.js",
+    "./common": "./common.js"
+  },
   "dependencies": {
     "@rushstack/eslint-patch": "^1.2.0",
     "@vue/eslint-config-typescript": "^11.0.2",
