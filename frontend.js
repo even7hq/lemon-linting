@@ -53,7 +53,12 @@ module.exports = {
         "vue/prefer-separate-static-class": "error",
         "vue/prefer-true-attribute-shorthand": "warn",
 
-        "vue/script-indent": ["warn", 4],
+        "vue/script-indent": ["warn", 4, {
+            switchCase: 1,
+            ignores: [
+                "[value.type='IfStatement']"
+            ]
+        }],
 
         "vue/v-bind-style": "error",
         "vue/v-on-style": "error",
