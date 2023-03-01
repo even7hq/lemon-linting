@@ -23,6 +23,8 @@ module.exports = {
         "vue/multi-word-component-names": "off",
         "vue/require-default-prop": "off",
         "vue/attribute-hyphenation": "off",
+        "vue/attribute-hyphenation": "off",
+
         "@typescript-eslint/ban-ts-comment": "off",
         "@typescript-eslint/no-explicit-any": "off",
 
