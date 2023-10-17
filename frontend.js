@@ -50,7 +50,6 @@ module.exports = {
         "vue/prop-name-casing": ["warn", "camelCase"],
         "vue/singleline-html-element-content-newline": "error",
         "vue/padding-line-between-blocks": "error",
-        "vue/padding-line-between-tags": "warn",
         "vue/padding-lines-in-component-definition": "warn",
         "vue/prefer-separate-static-class": "error",
         "vue/prefer-true-attribute-shorthand": "warn",
@@ -61,6 +60,20 @@ module.exports = {
                 "[value.type='IfStatement']"
             ]
         }],
+
+        "vue/padding-line-between-tags": ["warn", [
+            { blankLine: "consistent", prev: "br", next: "*" },
+            { blankLine: "consistent", prev: "*", next: "br" },
+
+            { blankLine: "consistent", prev: "span", next: "*" },
+            { blankLine: "consistent", prev: "*", next: "span" },
+
+            { blankLine: "never", prev: "strong", next: "*" },
+            { blankLine: "never", prev: "*", next: "strong" },
+
+            { blankLine: "never", prev: "em", next: "*" },
+            { blankLine: "never", prev: "*", next: "em" }
+        ]],
 
         "vue/v-bind-style": "error",
         "vue/v-on-style": "error",
