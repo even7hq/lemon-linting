@@ -11,7 +11,7 @@ module.exports = {
         require.resolve("./common"),
         "plugin:vue/essential",
         "plugin:vue/recommended",
-        "@vue/eslint-config-typescript"
+        require.resolve("@vue/eslint-config-typescript")
     ],
 
     plugins: [
