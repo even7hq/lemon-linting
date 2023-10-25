@@ -59,6 +59,11 @@ module.exports = {
             ]
         }],
 
+        "vue/valid-v-on": ["error", {
+            // @click.away
+            modifiers: ["away"]
+        }],
+
         "vue/padding-line-between-tags": ["warn", [
             { blankLine: "consistent", prev: "br", next: "*" },
             { blankLine: "consistent", prev: "*", next: "br" },
