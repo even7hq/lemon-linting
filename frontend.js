@@ -9,9 +9,10 @@ module.exports = {
 
     extends: [
         require.resolve("./common"),
+        require.resolve("./typescript"),
+
         "plugin:vue/essential",
-        "plugin:vue/recommended",
-        require.resolve("@vue/eslint-config-typescript")
+        "plugin:vue/recommended"
     ],
 
     plugins: [
@@ -24,9 +25,6 @@ module.exports = {
         "vue/require-default-prop": "off",
         "vue/attribute-hyphenation": "off",
         "vue/attribute-hyphenation": "off",
-
-        "@typescript-eslint/ban-ts-comment": "off",
-        "@typescript-eslint/no-explicit-any": "off",
 
         "vue/singleline-html-element-content-newline": "warn",
         "vue/multiline-html-element-content-newline": "warn",
@@ -108,6 +106,7 @@ module.exports = {
             singleline: {
                 max: 3
             },
+
             multiline: {
                 max: 1
             }

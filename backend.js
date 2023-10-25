@@ -1,3 +1,6 @@
 module.exports = {
-    extends: [__dirname + "/common"],
+    extends: [
+        require.resolve("./common"),
+        require.resolve("./typescript")
+    ],
 };
