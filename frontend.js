@@ -55,7 +55,8 @@ module.exports = {
         "vue/script-indent": ["warn", 4, {
             switchCase: 1,
             ignores: [
-                "[value.type='IfStatement']"
+                // Ignore if statements with alternates
+                "IfStatement[alternate]"
             ]
         }],
 
