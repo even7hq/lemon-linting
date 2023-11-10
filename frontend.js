@@ -100,6 +100,8 @@ module.exports = {
             ]
         }],
 
+        "vue/html-quotes": "error",
+
         "vue/html-indent": ["error", 4, {
             "attribute": 1,
             "baseIndent": 1,

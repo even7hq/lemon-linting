@@ -6,6 +6,13 @@ module.exports = {
     ],
 
     rules: {
+        "@typescript-eslint/quotes": ["error", "double", {
+            avoidEscape: false,
+            allowTemplateLiterals: true
+        }],
+
+        "no-console": "warn",
+
         "@typescript-eslint/keyword-spacing": ["warn", {
             before: true,
 
