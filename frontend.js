@@ -118,6 +118,8 @@ module.exports = {
             multiline: {
                 max: 1
             }
-        }]
+        }],
+
+        "no-console": false,
     }
 };
