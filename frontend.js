@@ -120,6 +120,6 @@ module.exports = {
             }
         }],
 
-        "no-console": false,
+        "no-console": 0,
     }
 };
