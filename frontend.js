@@ -1,5 +1,3 @@
-require("@rushstack/eslint-patch/modern-module-resolution");
-
 module.exports = {
     root: true,
 
@@ -24,29 +22,21 @@ module.exports = {
         "vue/multi-word-component-names": "off",
         "vue/require-default-prop": "off",
         "vue/attribute-hyphenation": "off",
-        "vue/attribute-hyphenation": "off",
+        "vue/html-self-closing": "off",
 
         "vue/singleline-html-element-content-newline": "warn",
         "vue/multiline-html-element-content-newline": "warn",
 
-        "vue/html-self-closing": ["warn", {
-            "i": "any"
-        }],
-
-        "vue/html-quotes": "error",
         "vue/component-definition-name-casing": ["error", "PascalCase"],
-        "vue/html-self-closing": "off",
         "vue/html-closing-bracket-newline": "error",
         "vue/first-attribute-linebreak": "error",
         "vue/html-closing-bracket-spacing": "error",
         "vue/html-end-tags": "error",
-        "vue/multiline-html-element-content-newline": "error",
         "vue/no-multi-spaces": "error",
         "vue/mustache-interpolation-spacing": "warn",
         "vue/no-spaces-around-equal-signs-in-attribute": "error",
         "vue/no-template-shadow": "error",
         "vue/prop-name-casing": ["warn", "camelCase"],
-        "vue/singleline-html-element-content-newline": "error",
         "vue/padding-line-between-blocks": "error",
         "vue/padding-lines-in-component-definition": "warn",
         "vue/prefer-separate-static-class": "error",
@@ -72,7 +62,6 @@ module.exports = {
             { blankLine: "consistent", prev: "span", next: "*" },
             { blankLine: "consistent", prev: "*", next: "span" },
 
-            { blankLine: "never", prev: "strong", next: "*" },
             { blankLine: "never", prev: "*", next: "strong" },
 
             { blankLine: "never", prev: "em", next: "*" },
@@ -118,8 +107,6 @@ module.exports = {
             multiline: {
                 max: 1
             }
-        }],
-
-        "no-console": 0,
+        }]
     }
 };
