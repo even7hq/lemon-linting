@@ -11,8 +11,6 @@ module.exports = {
             allowTemplateLiterals: true
         }],
 
-        "no-console": "warn",
-
         "@typescript-eslint/keyword-spacing": ["warn", {
             before: true,
 
