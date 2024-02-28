@@ -7,7 +7,6 @@ module.exports = {
 
     extends: [
         require.resolve("./common"),
-        require.resolve("./typescript"),
         require.resolve("@vue/eslint-config-typescript"),
 
         "plugin:vue/essential",
