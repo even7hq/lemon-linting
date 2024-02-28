@@ -1,27 +1,16 @@
 module.exports = {
-    root: true,
-
     extends: [
-        require.resolve("@vue/eslint-config-typescript")
+        "plugin:@typescript-eslint/recommended"
     ],
 
+    parser: "@typescript-eslint/parser",
+    plugins: ["@typescript-eslint"],
+
     rules: {
-        "@typescript-eslint/quotes": ["error", "double", {
-            avoidEscape: false,
-            allowTemplateLiterals: true
-        }],
-
-        "@typescript-eslint/keyword-spacing": ["warn", {
-            before: true,
-
-            overrides: {
-                catch: {
-                    after: false
-                }
-            }
-        }],
-
-        "@typescript-eslint/ban-ts-comment": "off",
+        // Allow explicit any
         "@typescript-eslint/no-explicit-any": "off",
+
+        // Allow TS comments
+        "@typescript-eslint/ban-ts-comment": "off"
     }
-};
+}

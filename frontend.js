@@ -8,6 +8,7 @@ module.exports = {
     extends: [
         require.resolve("./common"),
         require.resolve("./typescript"),
+        require.resolve("@vue/eslint-config-typescript"),
 
         "plugin:vue/essential",
         "plugin:vue/recommended"
@@ -107,6 +108,24 @@ module.exports = {
             multiline: {
                 max: 1
             }
-        }]
+        }],
+
+        "@typescript-eslint/quotes": ["error", "double", {
+            avoidEscape: false,
+            allowTemplateLiterals: true
+        }],
+
+        "@typescript-eslint/keyword-spacing": ["warn", {
+            before: true,
+
+            overrides: {
+                catch: {
+                    after: false
+                }
+            }
+        }],
+
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-explicit-any": "off",
     }
 };

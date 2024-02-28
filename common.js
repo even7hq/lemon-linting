@@ -13,6 +13,10 @@ module.exports = {
         "eslint:recommended"
     ],
 
+    parserOptions: {
+        sourceType: "module"
+    },
+
     rules: {
         // Only double quotes
         quotes: ["warn", "double"],
@@ -50,5 +54,23 @@ module.exports = {
 
         // Use parentheses in arrow functions
         "arrow-parens": "error",
+
+        // Requires `const` for never-reused variables
+        "prefer-const": "error",
+
+        // Enforce `for` loop update moving the counter in the right direction
+        "for-direction": "error",
+
+        // Enfore spaces before blocks
+        "space-before-blocks": ["error", "always"],
+
+        // Enfore spaces after blocks
+        "block-spacing": ["error", "always"],
+
+        // Enfore spaces after keywords
+        "keyword-spacing": "error",
+
+        // Allow extra boolean casting
+        "no-extra-boolean-cast": "off"
     }
 };
