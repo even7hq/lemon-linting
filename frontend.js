@@ -18,6 +18,11 @@ module.exports = {
     ],
 
     rules: {
+        // Allow console
+        "no-console": ["error", {
+            allow: ["error", "warn", "debug", "info"]
+        }],
+
         // Disable some unused rules
         "vue/multi-word-component-names": "off",
         "vue/require-default-prop": "off",
@@ -112,16 +117,6 @@ module.exports = {
         "@typescript-eslint/quotes": ["error", "double", {
             avoidEscape: false,
             allowTemplateLiterals: true
-        }],
-
-        "@typescript-eslint/keyword-spacing": ["warn", {
-            before: true,
-
-            overrides: {
-                catch: {
-                    after: false
-                }
-            }
         }],
 
         "@typescript-eslint/ban-ts-comment": "off",

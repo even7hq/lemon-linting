@@ -13,6 +13,9 @@ module.exports = {
         "@typescript-eslint/no-explicit-any": "off",
 
         // Allow TS comments
-        "@typescript-eslint/ban-ts-comment": "off"
+        "@typescript-eslint/ban-ts-comment": "off",
+
+        // This conflicts with "keyword-spacing"
+        "@typescript-eslint/keyword-spacing": "off",
     }
 }
