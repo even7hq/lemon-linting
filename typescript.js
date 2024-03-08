@@ -17,5 +17,8 @@ module.exports = {
 
         // This conflicts with "keyword-spacing"
         "@typescript-eslint/keyword-spacing": "off",
+
+        // Allow namespaces
+        "@typescript-eslint/no-namespace": "off"
     }
 }
