@@ -25,6 +25,10 @@ module.exports = {
         "no-console": ["error", {
             allow: ["debug"]
         }],
+        
+        // Block async promise executor, because
+        // they can lead to unfortunate side effects
+        "no-async-promise-executor": "error",
 
         // Objects need to have a newline
         "object-curly-newline": ["warn", {
