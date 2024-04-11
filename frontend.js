@@ -114,6 +114,9 @@ module.exports = {
             }
         }],
 
+        // v-html will throw an error
+        "vue/no-v-html": "error",
+
         "@typescript-eslint/quotes": ["error", "double", {
             avoidEscape: false,
             allowTemplateLiterals: true
