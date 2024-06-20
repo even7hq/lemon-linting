@@ -19,6 +19,17 @@ module.exports = {
         "@typescript-eslint/keyword-spacing": "off",
 
         // Allow namespaces
-        "@typescript-eslint/no-namespace": "off"
+        "@typescript-eslint/no-namespace": "off",
+
+        // Enforce brace style
+        "curly": "error",
+
+        // Deny using multiple empty lines
+        "no-multiple-empty-lines": ["warn", {
+            "max": 1
+        }],
+
+        // Enforce using camel case
+        "camelcase": ["warn"]
     }
 }
