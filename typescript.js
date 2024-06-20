@@ -32,10 +32,6 @@ module.exports = {
         // Enforce using camel case
         "@typescript-eslint/naming-convention": ["warn",
             {
-                "selector": "default",
-                "format": ["camelCase"]
-            },
-            {
                 "selector": "variableLike",
                 "format": ["camelCase", "PascalCase"]
             },
@@ -44,21 +40,13 @@ module.exports = {
                 "format": ["camelCase"]
             },
             {
-                "selector": "memberLike",
+                "selector": ["classProperty", "classMethod"],
                 "format": ["camelCase", "snake_case"]
             },
-            // To allow object properties containing "-"
+            // Enforce enums to be uppercase
             {
-                "selector": "objectLiteralProperty",
-                "format": [],
-                "custom": {
-                    "match": true,
-                    "regex": ""
-                },
-                "filter": {
-                    "match": true,
-                    "regex": "-"
-                }
+                "selector": "enumMember",
+                "format": ["UPPER_CASE"]
             },
             {
                 "selector": "typeLike",
