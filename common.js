@@ -25,6 +25,9 @@ module.exports = {
         "no-console": ["error", {
             allow: ["debug"]
         }],
+
+        // Disable no-undef because it conflicts with the default language server
+        "no-undef": "off",
         
         // Block async promise executor, because
         // they can lead to unfortunate side effects
@@ -51,7 +54,9 @@ module.exports = {
         "no-extra-semi": "error",
 
         // No trailing spaces
-        "no-trailing-spaces": "warn",
+        "no-trailing-spaces": ["warn", {
+            "ignoreComments": true
+        }],
 
         // Use arrow function callbacks
         "prefer-arrow-callback": "error",
