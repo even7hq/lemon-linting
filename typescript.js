@@ -30,6 +30,40 @@ module.exports = {
         }],
 
         // Enforce using camel case
-        "camelcase": ["warn"]
+        "@typescript-eslint/naming-convention": ["warn",
+            {
+                "selector": "default",
+                "format": ["camelCase"]
+            },
+            {
+                "selector": "variableLike",
+                "format": ["camelCase", "PascalCase"]
+            },
+            {
+                "selector": "parameter",
+                "format": ["camelCase"]
+            },
+            {
+                "selector": "memberLike",
+                "format": ["camelCase", "snake_case"]
+            },
+            // To allow object properties containing "-"
+            {
+                "selector": "objectLiteralProperty",
+                "format": [],
+                "custom": {
+                    "match": true,
+                    "regex": ""
+                },
+                "filter": {
+                    "match": true,
+                    "regex": "-"
+                }
+            },
+            {
+                "selector": "typeLike",
+                "format": ["PascalCase"]
+            },
+        ]
     }
 }
