@@ -40,15 +40,29 @@ module.exports = {
                 "@typescript-eslint/naming-convention": ["warn",
                     {
                         "selector": "variableLike",
-                        "format": ["camelCase", "PascalCase"]
+                        "format": ["camelCase", "PascalCase"],
+                        "filter": {
+                            "match": false,
+                            "regex": "^\_+"
+                        }
                     },
                     {
                         "selector": "parameter",
-                        "format": ["camelCase"]
+                        "format": ["camelCase"],
+                        "filter": {
+                            "match": false,
+                            "regex": "^\_+"
+                        }
                     },
                     {
                         "selector": ["classProperty", "classMethod"],
                         "format": ["camelCase", "snake_case"]
+                    },
+                    // Allow UPPER_CASE static properties
+                    {
+                        "selector": ["classProperty"],
+                        "modifiers": ["static"],
+                        "format": ["camelCase", "snake_case", "UPPER_CASE"]
                     },
                     // Enforce enums to be uppercase
                     {
