@@ -40,7 +40,7 @@ module.exports = {
                 "@typescript-eslint/naming-convention": ["warn",
                     {
                         "selector": "variableLike",
-                        "format": ["camelCase", "PascalCase"],
+                        "format": ["camelCase", "PascalCase", "UPPER_CASE"],
                         "filter": {
                             "match": false,
                             "regex": "^\_+"
