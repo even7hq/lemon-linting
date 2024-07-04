@@ -1,7 +1,7 @@
 module.exports = {
     extends: [
-        require.resolve("./typescript"),
-        require.resolve("./common")
+        require.resolve("./common"),
+        require.resolve("./typescript")
     ],
 
     /*plugins: [

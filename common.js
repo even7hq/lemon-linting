@@ -80,6 +80,9 @@ module.exports = {
         "keyword-spacing": "error",
 
         // Allow extra boolean casting
-        "no-extra-boolean-cast": "off"
+        "no-extra-boolean-cast": "off",
+
+        // Conflicts with namespaces
+        "no-inner-declarations": "off"
     }
 };
