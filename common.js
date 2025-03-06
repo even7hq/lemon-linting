@@ -10,7 +10,8 @@ module.exports = {
     },
 
     extends: [
-        "eslint:recommended"
+        "eslint:recommended",
+        "plugin:imimport/recommended"
     ],
 
     parserOptions: {
@@ -83,6 +84,15 @@ module.exports = {
         "no-extra-boolean-cast": "off",
 
         // Conflicts with namespaces
-        "no-inner-declarations": "off"
+        "no-inner-declarations": "off",
+
+        // Import order
+        "import/order": [
+            "warn",
+            {
+                groups: ["builtin", "external", "internal", "parent", "sibling"],
+                alphabetize: { order: "asc" }
+            }
+        ]
     }
 };

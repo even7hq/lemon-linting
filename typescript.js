@@ -4,7 +4,8 @@ module.exports = {
         {
             files: ["**/*.ts"],
             extends: [
-                "plugin:@typescript-eslint/recommended"
+                "plugin:@typescript-eslint/recommended",
+                "plugin:import/typescript"
             ],
 
             parser: "@typescript-eslint/parser",
@@ -14,6 +15,13 @@ module.exports = {
             },
 
             plugins: ["@typescript-eslint"],
+
+            settings: {
+                "import/resolver": {
+                    typescript: true,
+                    node: true
+                }
+            },
 
             rules: {
                 // Allow explicit any
