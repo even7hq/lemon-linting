@@ -11,7 +11,7 @@ module.exports = {
 
     extends: [
         "eslint:recommended",
-        "plugin:imimport/recommended"
+        "plugin:import/recommended"
     ],
 
     parserOptions: {
