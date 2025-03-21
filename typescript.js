@@ -18,7 +18,9 @@ module.exports = {
 
             settings: {
                 "import/resolver": {
-                    typescript: true,
+                    typescript: {
+                        alwaysTryTypes: true
+                    },
                     node: true
                 }
             },
@@ -81,7 +83,11 @@ module.exports = {
                         "selector": "typeLike",
                         "format": ["PascalCase"]
                     },
-                ]
+                ],
+
+                // Allow unresolved imports
+                // This causes false positives in some cases
+                "import/no-unresolved": "off",
             }
         }
     ]
