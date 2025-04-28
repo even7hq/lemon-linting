@@ -41,6 +41,29 @@ module.exports = {
                 // Enforce brace style
                 "curly": "error",
 
+                // Enforce else if on new line
+                "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
+
+                // Enforce semicolons
+                "semi": ["warn", "always"],
+
+                // Enforce new lines after complex blocks
+                "padding-line-between-statements": [
+                    "warn",
+                    {
+                        "blankLine": "always",
+                        "prev": [
+                            "block",
+                            "multiline-block-like",
+                            "multiline-expression",
+                            "multiline-const",
+                            "multiline-let",
+                            "multiline-var"
+                        ],
+                        "next": "*"
+                    }
+                ],
+
                 // Deny using multiple empty lines
                 "no-multiple-empty-lines": ["warn", {
                     "max": 1
