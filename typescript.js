@@ -47,6 +47,9 @@ module.exports = {
                 // Enforce semicolons
                 "semi": ["warn", "always"],
 
+                // Disable inline if statements
+                "nonblock-statement-body-position": ["error", "below"],
+
                 // Enforce new lines after complex blocks
                 "padding-line-between-statements": [
                     "warn",
