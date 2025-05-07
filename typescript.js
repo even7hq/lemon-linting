@@ -111,6 +111,12 @@ module.exports = {
                     },
                 ],
 
+                // Only double quotes
+                "@typescript-eslint/quotes": ["error", "double", {
+                    avoidEscape: false,
+                    allowTemplateLiterals: true
+                }],
+
                 // Allow unresolved imports
                 // This causes false positives in some cases
                 "import/no-unresolved": "off",
