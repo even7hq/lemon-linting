@@ -33,7 +33,7 @@ module.exports = {
                 "@typescript-eslint/ban-ts-comment": "off",
 
                 // This conflicts with "keyword-spacing"
-                "@typescript-eslint/keyword-spacing": "off",
+                "keyword-spacing": "off",
 
                 // Allow namespaces
                 "@typescript-eslint/no-namespace": "off",
@@ -112,7 +112,7 @@ module.exports = {
                 ],
 
                 // Only double quotes
-                "@typescript-eslint/quotes": ["error", "double", {
+                "quotes": ["error", "double", {
                     avoidEscape: false,
                     allowTemplateLiterals: true
                 }],
