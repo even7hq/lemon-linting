@@ -13,7 +13,7 @@ module.exports = {
         //"local/prevent-invalid-sanitization-regexp": "error",
 
         // Since in backend we don't use .js files, we're re-enabling this here
-        "@typescript-eslint/keyword-spacing": ["warn", {
+        "keyword-spacing": ["warn", {
             before: true,
             after: true
         }]
