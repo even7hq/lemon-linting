@@ -3,7 +3,7 @@
   "version": "1.0.2",
   "main": "index.js",
   "license": "UNLICENSED",
-  "author": "Matheus Giovani <matheus+devambient@edjdigital.com.br>",
+  "author": "Matheus Giovani <matheus+devambient@even7.com.br>",
   "repository": "https://github.com/edjdigital/luckymaker-linting",
   "exports": {
     ".": "./index.js",
