@@ -17,6 +17,16 @@ module.exports = {
         "vue"
     ],
 
+    parserOptions: {
+        parser: {
+            ts: require.resolve("@typescript-eslint/parser"),
+            js: "espree",
+
+            // Skip parsing for server-side Lua blocks (<script server lang="lua">)
+            lua: require.resolve("./parsers/noop-parser")
+        }
+    },
+
     rules: {
         // Allow console
         "no-console": ["error", {
@@ -174,10 +184,10 @@ module.exports = {
         // Deny useless concatenation
         "vue/no-useless-concat": "error",
 
-        // Enforce the block language
+        // Enforce the block language (ts for standard scripts, lua for server scripts via ts2lua)
         "vue/block-lang": ["error", {
             script: {
-                lang: "ts"
+                lang: ["ts", "lua"]
             }
         }],
 
