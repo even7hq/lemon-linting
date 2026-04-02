@@ -5,6 +5,8 @@ module.exports = {
     },
 
     rules: {
-        "prevent-invalid-sanitization-regexp": require("./misc/prevent-invalid-sanitization-regexp")
+        "prevent-invalid-sanitization-regexp": require("./misc/prevent-invalid-sanitization-regexp"),
+        "prefer-else-newline-if": require("./misc/prefer-else-newline-if"),
+        "require-jsdoc-param-returns": require("./misc/require-jsdoc-param-returns")
     }
 }

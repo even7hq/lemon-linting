@@ -118,6 +118,13 @@ module.exports = {
                     allowTemplateLiterals: true
                 }],
 
+                // Override base indent to add SwitchCase indentation
+                // ignoredNodes includes IfStatement > IfStatement to allow the } else\nif pattern
+                indent: ["warn", 4, {
+                    SwitchCase: 1,
+                    ignoredNodes: ["IfStatement > IfStatement.alternate"]
+                }],
+
                 // Allow unresolved imports
                 // This causes false positives in some cases
                 "import/no-unresolved": "off",

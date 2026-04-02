@@ -19,6 +19,9 @@ module.exports = {
     },
 
     rules: {
+        // 4-space indentation
+        indent: ["warn", 4, { SwitchCase: 1 }],
+
         // Only double quotes
         quotes: ["warn", "double"],
 
@@ -34,17 +37,18 @@ module.exports = {
         // they can lead to unfortunate side effects
         "no-async-promise-executor": "error",
 
-        // Objects with 3+ properties must have newlines (opening and closing braces)
+        // Objects need to have a newline
         "object-curly-newline": ["warn", {
             "ObjectExpression": {
                 multiline: true,
+                consistent: true,
                 minProperties: 3
             }
         }],
 
-        // Each property must be on its own line when the object spans multiple lines
+        // Object properties needs in a newline
         "object-property-newline": ["warn", {
-            allowAllPropertiesOnSameLine: false
+            allowAllPropertiesOnSameLine: true
         }],
 
         // No trailing commas

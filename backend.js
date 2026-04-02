@@ -4,13 +4,17 @@ module.exports = {
         require.resolve("./typescript")
     ],
 
-    /*plugins: [
-        require.resolve("./.eslint-plugin-local")
-    ],*/
+    plugins: ["local"],
 
     rules: {
         // Prevents invalid sanitization RegExp
         //"local/prevent-invalid-sanitization-regexp": "error",
+
+        // Prefer `} else\nif` over `} else if` for chained conditionals
+        "local/prefer-else-newline-if": "warn",
+
+        // Require @param and @returns on documented functions and methods
+        "local/require-jsdoc-param-returns": "warn",
 
         // Since in backend we don't use .js files, we're re-enabling this here
         "keyword-spacing": ["warn", {
