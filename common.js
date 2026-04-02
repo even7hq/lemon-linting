@@ -34,18 +34,17 @@ module.exports = {
         // they can lead to unfortunate side effects
         "no-async-promise-executor": "error",
 
-        // Objects need to have a newline
+        // Objects with 3+ properties must have newlines (opening and closing braces)
         "object-curly-newline": ["warn", {
             "ObjectExpression": {
                 multiline: true,
-                consistent: true,
                 minProperties: 3
             }
         }],
 
-        // Object properties needs in a newline
+        // Each property must be on its own line when the object spans multiple lines
         "object-property-newline": ["warn", {
-            allowAllPropertiesOnSameLine: true
+            allowAllPropertiesOnSameLine: false
         }],
 
         // No trailing commas
