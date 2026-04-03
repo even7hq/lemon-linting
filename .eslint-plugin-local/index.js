@@ -7,6 +7,8 @@ module.exports = {
     rules: {
         "prevent-invalid-sanitization-regexp": require("./misc/prevent-invalid-sanitization-regexp"),
         "prefer-else-newline-if": require("./misc/prefer-else-newline-if"),
-        "require-jsdoc-param-returns": require("./misc/require-jsdoc-param-returns")
+        "require-jsdoc-param-returns": require("./misc/require-jsdoc-param-returns"),
+        "require-blank-line-between-documented-props": require("./misc/require-blank-line-between-documented-props"),
+        "require-multiline-jsdoc": require("./misc/require-multiline-jsdoc")
     }
 }
