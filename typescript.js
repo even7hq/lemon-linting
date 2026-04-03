@@ -51,7 +51,7 @@ module.exports = {
                 // Disable inline if statements
                 "nonblock-statement-body-position": ["error", "below"],
 
-                // Enforce new lines after complex blocks
+                // Enforce new lines after complex blocks, and before if statements
                 "padding-line-between-statements": [
                     "warn",
                     {
@@ -65,6 +65,16 @@ module.exports = {
                             "multiline-var"
                         ],
                         "next": "*"
+                    },
+                    {
+                        "blankLine": "always",
+                        "prev": ["const", "let", "var", "expression", "return", "throw", "export", "import", "function", "class", "for", "while", "do", "switch", "try"],
+                        "next": "if"
+                    },
+                    {
+                        "blankLine": "any",
+                        "prev": ["if", "block-like"],
+                        "next": "if"
                     }
                 ],
 
