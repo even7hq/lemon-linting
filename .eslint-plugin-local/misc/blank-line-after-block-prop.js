@@ -59,8 +59,10 @@ module.exports = {
                     continue;
                 }
 
-                // Only enforce when previous property ends with } or )
-                if (lastToken.value !== "}" && lastToken.value !== ")") {
+                // Only enforce when the previous property value spans multiple lines
+                const prevFirstToken = sourceCode.getFirstToken(prev);
+
+                if (!prevFirstToken || lastToken.loc.end.line === prevFirstToken.loc.start.line) {
                     continue;
                 }
 
