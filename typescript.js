@@ -30,6 +30,9 @@ module.exports = {
                 // Allow explicit any
                 "@typescript-eslint/no-explicit-any": "off",
 
+                // Disabled — unused-imports/no-unused-vars (in common.js) handles this with autofix
+                "@typescript-eslint/no-unused-vars": "off",
+
                 // Allow TS comments
                 "@typescript-eslint/ban-ts-comment": "off",
 
@@ -129,10 +132,16 @@ module.exports = {
                 }],
 
                 // Override base indent to add SwitchCase indentation
-                // ignoredNodes includes IfStatement > IfStatement to allow the } else\nif pattern
+                // ignoredNodes:
+                //   - IfStatement > IfStatement.alternate: allows the } else\nif pattern
+                //   - ConditionalExpression > *: avoids false positives for nested ternaries in spreads/object literals
                 indent: ["warn", 4, {
                     SwitchCase: 1,
-                    ignoredNodes: ["IfStatement > IfStatement.alternate"]
+                    ignoredNodes: [
+                        "IfStatement > IfStatement.alternate",
+                        "ConditionalExpression > ObjectExpression",
+                        "ConditionalExpression > ObjectExpression > *"
+                    ]
                 }],
 
                 // Allow unresolved imports

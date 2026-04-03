@@ -12,6 +12,8 @@ module.exports = {
         ecmaVersion: 2021
     },
 
+    plugins: ["unused-imports"],
+
     extends: [
         "eslint:recommended",
         "plugin:import/recommended"
@@ -24,6 +26,9 @@ module.exports = {
     rules: {
         // 4-space indentation
         indent: ["warn", 4, { SwitchCase: 1 }],
+
+        // Comments must be on their own line — not inline after statements
+        "no-inline-comments": "warn",
 
         // Only double quotes
         quotes: ["warn", "double"],
@@ -86,6 +91,18 @@ module.exports = {
         // Enfore spaces after keywords
         "keyword-spacing": "error",
 
+        // Disable the base rule — local/prefix-unused-vars replaces it with autofix
+        "no-unused-vars": "off",
+
+        // Autofixable: removes unused imports
+        "unused-imports/no-unused-imports": "warn",
+
+        // Autofixable: removes unused variable declarations
+        "local/remove-unused-vars": ["warn", {
+            varsIgnorePattern: "^_",
+            argsIgnorePattern: "^_"
+        }],
+
         // Allow extra boolean casting
         "no-extra-boolean-cast": "off",
 
@@ -93,10 +110,22 @@ module.exports = {
         "no-inner-declarations": "off",
 
         // Import order
+        // pathGroups pins workspace/alias imports so the order never flips
+        // between contexts (terminal vs Cursor ESLint server).
         "import/order": [
             "warn",
             {
                 groups: ["builtin", "external", "internal", "parent", "sibling"],
+                pathGroups: [
+                    // @scope/package — always external (npm scoped packages)
+                    { pattern: "@*/*",  group: "external", position: "after" },
+                    { pattern: "@*/",   group: "external", position: "after" },
+                    // @/ alias — always internal (local path alias)
+                    { pattern: "@/**",  group: "internal" },
+                    // ~anything — always internal (tilde path aliases)
+                    { pattern: "~**",   group: "internal" }
+                ],
+                pathGroupsExcludedImportTypes: ["builtin"],
                 alphabetize: { order: "asc" }
             }
         ]

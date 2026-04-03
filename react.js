@@ -19,6 +19,15 @@ module.exports = {
         // Require JSDoc comments to use multiline format
         "local/require-multiline-jsdoc": "warn",
 
+        // Require multiline JSDoc on UPPER_CASE const declarations
+        "local/require-jsdoc-on-upper-case-const": "warn",
+
+        // Convert standalone // comments before declarations into /** */ docblocks
+        "local/prefer-jsdoc-comment": "warn",
+
+        // Require blank line before a property that follows a closing } or )
+        "local/blank-line-after-block-prop": "warn",
+
         // Require a blank JSX line before conditional (&&) and map expressions
         "local/jsx-newline-before-block-expression": "warn",
 

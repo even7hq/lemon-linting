@@ -4,6 +4,8 @@ module.exports = {
         require.resolve("./typescript")
     ],
 
+    plugins: ["local"],
+
     rules: {
         // Prevents invalid sanitization RegExp
         //"local/prevent-invalid-sanitization-regexp": "error",
@@ -19,6 +21,15 @@ module.exports = {
 
         // Require JSDoc comments to use multiline format
         "local/require-multiline-jsdoc": "warn",
+
+        // Require multiline JSDoc on UPPER_CASE const declarations
+        "local/require-jsdoc-on-upper-case-const": "warn",
+
+        // Convert standalone // comments before declarations into /** */ docblocks
+        "local/prefer-jsdoc-comment": "warn",
+
+        // Require blank line before a property that follows a closing } or )
+        "local/blank-line-after-block-prop": "warn",
 
         // Since in backend we don't use .js files, we're re-enabling this here
         "keyword-spacing": ["warn", {
