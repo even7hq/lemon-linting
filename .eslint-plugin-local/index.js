@@ -9,6 +9,8 @@ module.exports = {
         "prefer-else-newline-if": require("./misc/prefer-else-newline-if"),
         "require-jsdoc-param-returns": require("./misc/require-jsdoc-param-returns"),
         "require-blank-line-between-documented-props": require("./misc/require-blank-line-between-documented-props"),
-        "require-multiline-jsdoc": require("./misc/require-multiline-jsdoc")
+        "require-multiline-jsdoc": require("./misc/require-multiline-jsdoc"),
+        "jsx-newline-before-block-expression": require("./misc/jsx-newline-before-block-expression"),
+        "jsx-newline-between-elements-with-children": require("./misc/jsx-newline-between-elements-with-children")
     }
 }
