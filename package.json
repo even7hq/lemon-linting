@@ -13,19 +13,34 @@
     "./common": "./common.js",
     "./react": "./react.js",
     "./ts-parser-path": "./ts-parser-path.js",
-    "./define": "./define.js"
+    "./define": "./define.js",
+    "./common.config": "./common.config.js",
+    "./typescript.config": "./typescript.config.js",
+    "./backend.config": "./backend.config.js",
+    "./react.config": "./react.config.js",
+    "./frontend.config": "./frontend.config.js",
+    "./define.config": "./define.config.js",
+    "./plugin": "./plugin/index.js",
+    "./old": "./old/index.js"
+  },
+  "bin": {
+    "eslint": "./node_modules/.bin/eslint"
+  },
+  "scripts": {
+    "postinstall": "node postinstall.js"
   },
   "dependencies": {
+    "@eslint/js": "^10.0.1",
     "@rushstack/eslint-patch": "^1.16.1",
-    "@typescript-eslint/eslint-plugin": "^8.38.0",
-    "@typescript-eslint/parser": "^8.57.1",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
     "@vue/eslint-config-typescript": "^13.0.0",
-    "eslint": "^8.33.0",
+    "eslint": "^9",
     "eslint-import-resolver-typescript": "^4.2.2",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-local": "file:./.eslint-plugin-local",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-unused-imports": "^4.4.1",
     "eslint-plugin-vue": "^9.9.0",
+    "globals": "^17.4.0",
     "typescript": "5.9.3"
   }
 }
