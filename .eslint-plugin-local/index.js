@@ -15,6 +15,7 @@ module.exports = {
         "require-jsdoc-on-upper-case-const": require("./misc/require-jsdoc-on-upper-case-const"),
         "remove-unused-vars": require("./misc/remove-unused-vars"),
         "prefer-jsdoc-comment": require("./misc/prefer-jsdoc-comment"),
-        "blank-line-after-block-prop": require("./misc/blank-line-after-block-prop")
+        "blank-line-after-block-prop": require("./misc/blank-line-after-block-prop"),
+        "no-await-import": require("./misc/no-await-import")
     }
 }

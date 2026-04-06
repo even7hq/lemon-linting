@@ -28,6 +28,9 @@ module.exports = {
         // Require blank line before a property that follows a closing } or )
         "local/blank-line-after-block-prop": "warn",
 
+        // Disallow await import() with static paths unless justified with a @tag comment
+        "local/no-await-import": "warn",
+
         // Require a blank JSX line before conditional (&&) and map expressions
         "local/jsx-newline-before-block-expression": "warn",
 

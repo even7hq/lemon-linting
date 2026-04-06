@@ -31,6 +31,9 @@ module.exports = {
         // Require blank line before a property that follows a closing } or )
         "local/blank-line-after-block-prop": "warn",
 
+        // Disallow await import() with static paths unless justified with a @tag comment
+        "local/no-await-import": "warn",
+
         // Since in backend we don't use .js files, we're re-enabling this here
         "keyword-spacing": ["warn", {
             before: true,
