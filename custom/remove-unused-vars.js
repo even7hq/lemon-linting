@@ -1,27 +1,13 @@
-/**
- * Autofixable rule: reports unused variables, types, interfaces and enums,
- * and removes the entire declaration when the fix is applied.
- *
- * Covers:
- *   - const/let/var declarations (def.type === "Variable")
- *   - type aliases       (def.type === "TSTypeAliasDeclaration" / node.type)
- *   - interfaces         (def.type === "TSInterfaceDeclaration" / node.type)
- *   - enums              (def.type === "TSEnumDeclaration" / node.type)
- */
-
 /** @type {import("eslint").Rule.RuleModule} */
 module.exports = {
     meta: {
         type: "suggestion",
-
         docs: {
             description: "Remove unused variable, type, interface and enum declarations (autofixable)",
             category: "Variables",
             recommended: true
         },
-
         fixable: "code",
-
         schema: [
             {
                 type: "object",
@@ -35,15 +21,10 @@ module.exports = {
     },
 
     create(context) {
+        const sourceCode = context.sourceCode;
         const options = context.options[0] || {};
         const ignorePattern = options.varsIgnorePattern ? new RegExp(options.varsIgnorePattern) : /^_/;
 
-        /**
-         * Returns true when the given AST node is directly inside an export declaration.
-         *
-         * @param {import("eslint").Rule.Node} node
-         * @returns {boolean}
-         */
         function isExported(node) {
             const parent = node.parent;
 
@@ -54,17 +35,7 @@ module.exports = {
             );
         }
 
-        /**
-         * Removes the full declaration statement including the trailing newline.
-         *
-         * @param {import("eslint").Rule.RuleFixer} fixer
-         * @param {import("eslint").Rule.Node} declNode - The top-level declaration node.
-         * @returns {import("eslint").Rule.Fix}
-         */
         function removeDeclaration(fixer, declNode) {
-            const sourceCode = context.getSourceCode();
-
-            // If wrapped in export, remove the export too
             const target =
                 declNode.parent &&
                 (declNode.parent.type === "ExportNamedDeclaration" ||
@@ -78,8 +49,10 @@ module.exports = {
         }
 
         return {
-            "Program:exit"() {
-                walkScope(context.getScope(), (variable) => {
+            "Program:exit"(program) {
+                const scope = sourceCode.getScope(program);
+
+                walkScope(scope, (variable) => {
                     const name = variable.name;
 
                     if (ignorePattern.test(name)) {
@@ -90,7 +63,6 @@ module.exports = {
                         return;
                     }
 
-                    // Has any read reference — it IS used
                     if (variable.references.some((ref) => ref.isRead())) {
                         return;
                     }
@@ -98,7 +70,6 @@ module.exports = {
                     const def = variable.defs[0];
                     const defNode = def.node;
 
-                    // ── Variable (const/let/var) ──────────────────────────────────────
                     if (def.type === "Variable") {
                         const declarator = defNode;
                         const declaration = declarator.parent;
@@ -117,8 +88,6 @@ module.exports = {
                             node: idNode,
                             message: `'${name}' is assigned a value but never used.`,
                             fix(fixer) {
-                                const sourceCode = context.getSourceCode();
-
                                 if (declaration.declarations.length === 1) {
                                     return removeDeclaration(fixer, declaration);
                                 }
@@ -130,10 +99,6 @@ module.exports = {
                         return;
                     }
 
-                    // ── Type alias / Interface / Enum ─────────────────────────────────
-                    // @typescript-eslint/parser uses:
-                    //   def.type === "Type"        for type aliases and interfaces
-                    //   def.type === "TSEnumName"  for enums
                     const isTsType = def.type === "Type" || def.type === "TSEnumName";
 
                     if (!isTsType) {
@@ -165,10 +130,6 @@ module.exports = {
     }
 };
 
-/**
- * @param {import("eslint").Scope.Scope} scope
- * @param {(v: import("eslint").Scope.Variable) => void} fn
- */
 function walkScope(scope, fn) {
     for (const variable of scope.variables) {
         fn(variable);

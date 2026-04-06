@@ -1,26 +1,19 @@
+/** @type {import("eslint").Rule.RuleModule} */
 module.exports = {
     meta: {
         type: "suggestion",
-
         docs: {
-            description: "Require JSDoc block comments to use multiline format (/** ... */ must span multiple lines)",
+            description: "Require JSDoc block comments to use multiline format",
             category: "Style",
             recommended: true
         },
-
         fixable: "code",
         schema: []
     },
 
     create(context) {
-        const sourceCode = context.getSourceCode();
+        const sourceCode = context.sourceCode;
 
-        /**
-         * Returns true if the comment is a single-line JSDoc block (e.g. `/** text *\/`).
-         *
-         * @param comment - The comment node to check.
-         * @returns True if the comment is a single-line JSDoc block.
-         */
         function isSingleLineJsDoc(comment) {
             return (
                 comment.type === "Block" &&
@@ -29,25 +22,11 @@ module.exports = {
             );
         }
 
-        /**
-         * Rewrites `/** text *\/` to the multiline form:
-         * ```
-         * /**
-         *  * text
-         *  *\/
-         * ```
-         *
-         * @param fixer - The ESLint fixer.
-         * @param comment - The single-line JSDoc comment to rewrite.
-         * @returns The fix to apply.
-         */
         function fix(fixer, comment) {
             const indent = " ".repeat(comment.loc.start.column);
-            const content = comment.value
-                .replace(/^\*\s*/, "")
-                .replace(/\s*$/, "");
-
+            const content = comment.value.replace(/^\*\s*/, "").replace(/\s*$/, "");
             const multiline = `/**\n${indent} * ${content}\n${indent} */`;
+
             return fixer.replaceTextRange(comment.range, multiline);
         }
 

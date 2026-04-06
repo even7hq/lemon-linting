@@ -1,13 +1,12 @@
+/** @type {import("eslint").Rule.RuleModule} */
 module.exports = {
     meta: {
         type: "problem",
-
         docs: {
             description: "Prevent invalid numeric sanitization RegExp",
             category: "Best Practices",
-            recommended: true,
+            recommended: true
         },
-
         schema: []
     },
 
@@ -18,7 +17,6 @@ module.exports = {
                     context.report({
                         node,
                         message: "If you are REALLY sure that you want to replace only the FIRST number from the string, disable this rule for this line.",
-
                         fix(fixer) {
                             return fixer.replaceText(node.init, "^[0-9]", "[^0-9]");
                         }
@@ -27,4 +25,4 @@ module.exports = {
             }
         };
     }
-};  
+};
