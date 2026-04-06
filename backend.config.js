@@ -1,6 +1,6 @@
 const commonConfig = require("./common.config");
 const typescriptConfig = require("./typescript.config");
-const localPlugin = require("./plugin");
+const localPlugin = require("./custom");
 
 /** @type {import("eslint").Linter.Config[]} */
 module.exports = [

@@ -2,7 +2,7 @@ const js = require("@eslint/js");
 const globals = require("globals");
 const importPlugin = require("eslint-plugin-import");
 const unusedImports = require("eslint-plugin-unused-imports");
-const localPlugin = require("./plugin");
+const localPlugin = require("./custom");
 
 /** @type {import("eslint").Linter.Config[]} */
 module.exports = [
