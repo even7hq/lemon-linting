@@ -1,6 +1,6 @@
 const js = require("@eslint/js");
 const globals = require("globals");
-const importPlugin = require("eslint-plugin-import");
+const importPlugin = require("eslint-plugin-import-x");
 const unusedImports = require("eslint-plugin-unused-imports");
 const localPlugin = require("./custom");
 
