@@ -36,6 +36,7 @@ module.exports = [
             "vue/require-default-prop": "off",
             "vue/attribute-hyphenation": "off",
             "vue/html-self-closing": "off",
+            "vue/v-on-event-hyphenation": "off",
 
             "vue/singleline-html-element-content-newline": "warn",
             "vue/new-line-between-multi-line-property": "warn",
