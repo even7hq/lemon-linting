@@ -13,6 +13,7 @@ module.exports = {
         "require-jsdoc-on-upper-case-const": require("./require-jsdoc-on-upper-case-const"),
         "require-jsdoc-param-returns": require("./require-jsdoc-param-returns"),
         "require-multiline-jsdoc": require("./require-multiline-jsdoc"),
-        "max-inline-calls": require("./max-inline-calls")
+        "max-inline-calls": require("./max-inline-calls"),
+        "require-blank-lines-around-jsdoc": require("./require-blank-lines-around-jsdoc")
     }
 };

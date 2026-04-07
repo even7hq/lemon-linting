@@ -130,6 +130,9 @@ module.exports = [
             // Disallow await import() with static paths unless justified with a @tag comment
             "local/no-await-import": "warn",
 
+            // Require a blank line before and after JSDoc block comments
+            "local/require-blank-lines-around-jsdoc": "warn",
+
             // Import order — pathGroups pins workspace/alias imports so the order never flips
             "import/order": [
                 "warn",
