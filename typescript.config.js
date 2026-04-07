@@ -131,7 +131,11 @@ module.exports = [
                 ignoredNodes: [
                     "IfStatement > IfStatement.alternate",
                     "ConditionalExpression > ObjectExpression",
-                    "ConditionalExpression > ObjectExpression > *"
+                    "ConditionalExpression > ObjectExpression > *",
+                    // Allows trailing arguments of a multiline call to be indented
+                    // at the call level rather than the inner expression level.
+                    // e.g. setTimeout(() => ..., delay) where delay is on its own line.
+                    "CallExpression > .arguments:not(:first-child)"
                 ]
             }],
 
