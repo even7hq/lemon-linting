@@ -12,6 +12,7 @@ module.exports = {
         "require-blank-line-between-documented-props": require("./require-blank-line-between-documented-props"),
         "require-jsdoc-on-upper-case-const": require("./require-jsdoc-on-upper-case-const"),
         "require-jsdoc-param-returns": require("./require-jsdoc-param-returns"),
-        "require-multiline-jsdoc": require("./require-multiline-jsdoc")
+        "require-multiline-jsdoc": require("./require-multiline-jsdoc"),
+        "max-inline-calls": require("./max-inline-calls")
     }
 };
