@@ -30,7 +30,24 @@ module.exports = {
                 const betweenRange = [elseToken.range[1], ifToken.range[0]];
                 const betweenText = sourceCode.getText().slice(betweenRange[0], betweenRange[1]);
 
+                // The `if` must align with the parent `if` statement (same column as the outer `if`)
+                const ifIndent = " ".repeat(node.loc.start.column);
+                const expectedBetween = "\n" + ifIndent;
+
+                // Already on a new line — check that the indent matches the `else` column
                 if (betweenText.includes("\n")) {
+                    if (betweenText === expectedBetween) {
+                        return;
+                    }
+
+                    context.report({
+                        node: ifToken,
+                        message: "The `if` after `else` must be indented at the same level as `else`.",
+                        fix(fixer) {
+                            return fixer.replaceTextRange(betweenRange, expectedBetween);
+                        }
+                    });
+
                     return;
                 }
 
@@ -38,7 +55,7 @@ module.exports = {
                     node: ifToken,
                     message: "Use `} else\\nif` instead of `} else if` for chained conditionals.",
                     fix(fixer) {
-                        return fixer.replaceTextRange(betweenRange, "\n" + " ".repeat(ifToken.loc.start.column));
+                        return fixer.replaceTextRange(betweenRange, expectedBetween);
                     }
                 });
             }
