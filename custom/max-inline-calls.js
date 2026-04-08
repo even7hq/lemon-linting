@@ -30,6 +30,14 @@ module.exports = {
 
         return {
             CallExpression(node) {
+                // In a multiline method chain, each chained call's CallExpression starts at
+                // the same line as the chain root (because callee.object is the previous call).
+                // We detect this by checking if the callee's property is on a different line
+                // than the callee's object — if so, it's intentionally broken and shouldn't count.
+                if (isMultilineChainLink(node)) {
+                    return;
+                }
+
                 const line = node.loc.start.line;
 
                 if (!callsByLine.has(line)) {
@@ -61,6 +69,24 @@ module.exports = {
         };
     }
 };
+
+/**
+ * Returns true if this CallExpression is a link in a multiline method chain,
+ * meaning the `.method` part is on a different line than the object it's called on.
+ * e.g. `reply\n    .header(...)` — the property `header` is on a different line than `reply`.
+ *
+ * @param {import("eslint").Rule.Node} node
+ * @returns {boolean}
+ */
+function isMultilineChainLink(node) {
+    const callee = node.callee;
+
+    if (callee.type !== "MemberExpression") {
+        return false;
+    }
+
+    return callee.object.loc.end.line !== callee.property.loc.start.line;
+}
 
 /**
  * Marks all CallExpression descendants of node as nested.
