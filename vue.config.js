@@ -1,5 +1,6 @@
 const commonConfig = require("./common.config");
 const { localPlugin, localRules } = require("./common.config");
+const typescriptConfig = require("./typescript.config");
 const vuePlugin = require("eslint-plugin-vue");
 const tsParser = require("@typescript-eslint/parser");
 const globals = require("globals");
@@ -8,6 +9,7 @@ const noopParser = require("./parsers/noop-parser");
 /** @type {import("eslint").Linter.Config[]} */
 module.exports = [
     ...commonConfig,
+    ...typescriptConfig,
 
     // vue-eslint-parser as the main parser, with ts/lua sub-parsers
     ...vuePlugin.configs["flat/recommended"],

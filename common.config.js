@@ -123,6 +123,12 @@ const config = [
             // Conflicts with namespaces
             "no-inner-declarations": "off",
 
+            // Require blank line after block-like statements (if/else/for/while/try blocks)
+            "padding-line-between-statements": [
+                "warn",
+                { blankLine: "always", prev: "block-like", next: "*" }
+            ],
+
             // Import order — pathGroups pins workspace/alias imports so the order never flips
             "import/order": [
                 "warn",
