@@ -1,10 +1,12 @@
 /**
- * Requires a blank line before and after any JSDoc block comment (`/** ... *\/`).
+ * Requires a blank line before JSDoc comments and after the node they document.
  *
- * Exceptions:
- *  - First statement in a block/program (no blank line required before)
- *  - Last statement in a block/program (no blank line required after)
- *  - When the comment is the very first thing in the file
+ * A JSDoc comment (`/** ... *\/`) must have:
+ *   1. A blank line BEFORE the comment (unless it's the first thing in a block)
+ *   2. A blank line AFTER the node the comment documents (unless it's the last thing in a block)
+ *
+ * The comment and the node it documents are treated as a unit — no blank line
+ * is required between the `*\/` and the decorated/declared node itself.
  */
 
 /** @type {import("eslint").Rule.RuleModule} */
@@ -12,7 +14,7 @@ module.exports = {
     meta: {
         type: "suggestion",
         docs: {
-            description: "Require a blank line before and after JSDoc block comments",
+            description: "Require a blank line before JSDoc comments and after the node they document",
             category: "Style",
             recommended: true
         },
@@ -24,40 +26,25 @@ module.exports = {
         const sourceCode = context.sourceCode;
 
         /**
-         * Returns true if the token/comment is the first meaningful thing in its parent block.
+         * Returns the leading JSDoc comment for a node, or null if none.
          *
-         * @param {import("eslint").Rule.Node} comment
-         * @returns {boolean}
+         * @param {import("eslint").Rule.Node} node
+         * @returns {import("estree").Comment | null}
          */
-        function isFirstInBlock(comment) {
-            const tokenBefore = sourceCode.getTokenBefore(comment, { includeComments: true });
+        function getLeadingJsdoc(node) {
+            const comments = sourceCode.getCommentsBefore(node);
 
-            if (!tokenBefore) {
-                return true;
+            for (const comment of comments) {
+                if (comment.type === "Block" && comment.value.startsWith("*")) {
+                    return comment;
+                }
             }
 
-            // Opening brace of a block counts as "first"
-            return tokenBefore.value === "{" || tokenBefore.value === "[";
+            return null;
         }
 
         /**
-         * Returns true if the token/comment is the last meaningful thing in its parent block.
-         *
-         * @param {import("eslint").Rule.Node} comment
-         * @returns {boolean}
-         */
-        function isLastInBlock(comment) {
-            const tokenAfter = sourceCode.getTokenAfter(comment, { includeComments: true });
-
-            if (!tokenAfter) {
-                return true;
-            }
-
-            return tokenAfter.value === "}" || tokenAfter.value === "]";
-        }
-
-        /**
-         * Returns the number of blank lines between two positions in the source.
+         * Returns the number of blank lines between two source positions.
          *
          * @param {number} endPos
          * @param {number} startPos
@@ -69,60 +56,79 @@ module.exports = {
             return (between.match(/\n/g) || []).length - 1;
         }
 
-        return {
-            Program() {
-                const comments = sourceCode.getAllComments();
+        /**
+         * Checks and enforces blank lines around a JSDoc-documented node.
+         *
+         * @param {import("eslint").Rule.Node} node
+         */
+        function checkNode(node) {
+            const jsdoc = getLeadingJsdoc(node);
 
-                for (const comment of comments) {
-                    if (comment.type !== "Block" || !comment.value.startsWith("*")) {
-                        continue;
-                    }
+            if (!jsdoc) {
+                return;
+            }
 
-                    // ── Check blank line BEFORE ──────────────────────────────────
-                    if (!isFirstInBlock(comment)) {
-                        const tokenBefore = sourceCode.getTokenBefore(comment, { includeComments: true });
+            // ── 1. Blank line BEFORE the JSDoc comment ───────────────────────
+            const tokenBefore = sourceCode.getTokenBefore(jsdoc, { includeComments: true });
 
-                        if (tokenBefore) {
-                            const blanks = blankLinesBetween(tokenBefore.range[1], comment.range[0]);
+            if (tokenBefore && tokenBefore.value !== "{" && tokenBefore.value !== "[") {
+                const blanksBefore = blankLinesBetween(tokenBefore.range[1], jsdoc.range[0]);
 
-                            if (blanks < 1) {
-                                context.report({
-                                    node: comment,
-                                    message: "Expected a blank line before this JSDoc comment.",
-                                    fix(fixer) {
-                                        return fixer.insertTextAfterRange(
-                                            [tokenBefore.range[0], tokenBefore.range[1]],
-                                            "\n"
-                                        );
-                                    }
-                                });
-                            }
+                if (blanksBefore < 1) {
+                    context.report({
+                        node: jsdoc,
+                        message: "Expected a blank line before this JSDoc comment.",
+                        fix(fixer) {
+                            return fixer.insertTextAfterRange(
+                                [tokenBefore.range[0], tokenBefore.range[1]],
+                                "\n"
+                            );
                         }
-                    }
-
-                    // ── Check blank line AFTER ───────────────────────────────────
-                    if (!isLastInBlock(comment)) {
-                        const tokenAfter = sourceCode.getTokenAfter(comment, { includeComments: true });
-
-                        if (tokenAfter) {
-                            const blanks = blankLinesBetween(comment.range[1], tokenAfter.range[0]);
-
-                            if (blanks < 1) {
-                                context.report({
-                                    node: comment,
-                                    message: "Expected a blank line after this JSDoc comment.",
-                                    fix(fixer) {
-                                        return fixer.insertTextAfterRange(
-                                            [comment.range[0], comment.range[1]],
-                                            "\n"
-                                        );
-                                    }
-                                });
-                            }
-                        }
-                    }
+                    });
                 }
             }
+
+            // ── 2. Blank line AFTER the documented node ───────────────────────
+            const tokenAfter = sourceCode.getTokenAfter(node, { includeComments: true });
+
+            if (tokenAfter && tokenAfter.value !== "}" && tokenAfter.value !== "]") {
+                const blanksAfter = blankLinesBetween(node.range[1], tokenAfter.range[0]);
+
+                if (blanksAfter < 1) {
+                    context.report({
+                        node,
+                        message: "Expected a blank line after this JSDoc-documented node.",
+                        fix(fixer) {
+                            return fixer.insertTextAfterRange(
+                                [node.range[0], node.range[1]],
+                                "\n"
+                            );
+                        }
+                    });
+                }
+            }
+        }
+
+        return {
+            // Type aliases, interfaces, class declarations, function declarations
+            TSTypeAliasDeclaration: checkNode,
+            TSInterfaceDeclaration: checkNode,
+            ClassDeclaration: checkNode,
+            FunctionDeclaration: checkNode,
+
+            // Variable declarations (const/let/var with JSDoc)
+            VariableDeclaration: checkNode,
+
+            // Class properties and methods (including decorated ones)
+            PropertyDefinition: checkNode,
+            MethodDefinition: checkNode,
+
+            // TypeScript-specific class members
+            TSPropertySignature: checkNode,
+            TSMethodSignature: checkNode,
+
+            // Decorated declarations (decorators sit before the node but the node holds the JSDoc)
+            ExpressionStatement: checkNode
         };
     }
 };
