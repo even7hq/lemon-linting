@@ -31,8 +31,23 @@ module.exports = {
         }
 
         return {
-            Program() {
-                const comments = sourceCode.getAllComments();
+            Program(programNode) {
+                // getAllComments() misses comments inside Vue <script> sub-parser blocks,
+                // so we also walk ast.comments directly to cover all cases.
+                const fromApi = sourceCode.getAllComments();
+                const fromAst = programNode.body.length === 0
+                    ? (sourceCode.ast.comments ?? [])
+                    : [];
+                const seen = new Set();
+                const comments = [...fromApi, ...fromAst].filter((c) => {
+                    if (seen.has(c.range[0])) {
+                        return false;
+                    }
+
+                    seen.add(c.range[0]);
+
+                    return true;
+                });
 
                 for (const comment of comments) {
                     if (isSingleLineJsDoc(comment)) {

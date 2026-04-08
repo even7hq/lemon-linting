@@ -4,8 +4,31 @@ const importPlugin = require("eslint-plugin-import-x");
 const unusedImports = require("eslint-plugin-unused-imports");
 const localPlugin = require("./custom");
 
+/**
+ * All local/* rules, extracted so vue.config.js can re-declare them
+ * under the vue-eslint-parser context (where the plugin must be re-registered).
+ *
+ * @type {Record<string, import("eslint").Linter.RuleEntry>}
+ */
+const localRules = {
+    "local/remove-unused-vars": ["warn", {
+        varsIgnorePattern: "^_",
+        argsIgnorePattern: "^_"
+    }],
+    "local/max-inline-calls": ["warn", { max: 3 }],
+    "local/prefer-else-newline-if": "warn",
+    "local/require-jsdoc-param-returns": "warn",
+    "local/require-blank-line-between-documented-props": "warn",
+    "local/require-multiline-jsdoc": "warn",
+    "local/require-jsdoc-on-upper-case-const": "warn",
+    "local/prefer-jsdoc-comment": "warn",
+    "local/blank-line-after-block-prop": "warn",
+    "local/no-await-import": "warn",
+    "local/require-blank-lines-around-jsdoc": "warn"
+};
+
 /** @type {import("eslint").Linter.Config[]} */
-module.exports = [
+const config = [
     js.configs.recommended,
 
     {
@@ -92,46 +115,13 @@ module.exports = [
             "unused-imports/no-unused-imports": "warn",
 
             // Autofixable: removes unused variable/type/interface/enum declarations
-            "local/remove-unused-vars": ["warn", {
-                varsIgnorePattern: "^_",
-                argsIgnorePattern: "^_"
-            }],
+            ...localRules,
 
             // Allow extra boolean casting
             "no-extra-boolean-cast": "off",
 
             // Conflicts with namespaces
             "no-inner-declarations": "off",
-
-            // Disallow more than 3 call expressions on a single line
-            "local/max-inline-calls": ["warn", { max: 3 }],
-
-            // Prefer `} else\nif` over `} else if` for chained conditionals
-            "local/prefer-else-newline-if": "warn",
-
-            // Require @param and @returns on documented functions and methods
-            "local/require-jsdoc-param-returns": "warn",
-
-            // Require blank line between interface/type properties when any has a JSDoc block
-            "local/require-blank-line-between-documented-props": "warn",
-
-            // Require JSDoc comments to use multiline format
-            "local/require-multiline-jsdoc": "warn",
-
-            // Require multiline JSDoc on UPPER_CASE const declarations
-            "local/require-jsdoc-on-upper-case-const": "warn",
-
-            // Convert standalone // comments before declarations into /** */ docblocks
-            "local/prefer-jsdoc-comment": "warn",
-
-            // Require blank line before a property that follows a closing } or )
-            "local/blank-line-after-block-prop": "warn",
-
-            // Disallow await import() with static paths unless justified with a @tag comment
-            "local/no-await-import": "warn",
-
-            // Require a blank line before and after JSDoc block comments
-            "local/require-blank-lines-around-jsdoc": "warn",
 
             // Import order — pathGroups pins workspace/alias imports so the order never flips
             "import/order": [
@@ -151,3 +141,7 @@ module.exports = [
         }
     }
 ];
+
+module.exports = config;
+module.exports.localPlugin = localPlugin;
+module.exports.localRules = localRules;
