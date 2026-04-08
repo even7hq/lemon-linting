@@ -120,6 +120,13 @@ module.exports = {
         }
 
         function handleFunction(node) {
+            const parent = node.parent;
+
+            // Getters and setters don't need @returns/@param — the type annotation is enough
+            if (parent?.type === "MethodDefinition" && (parent.kind === "get" || parent.kind === "set")) {
+                return;
+            }
+
             const commentNode = getJsDocComment(node);
 
             if (commentNode) {
