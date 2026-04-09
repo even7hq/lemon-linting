@@ -35,6 +35,26 @@ module.exports = {
             );
         }
 
+        function isInsideModuleAugmentation(node) {
+            let current = node;
+
+            while (current) {
+                // Check if we're inside a TSModuleDeclaration with a string name (declare module "...")
+                if (
+                    current.type === "TSModuleDeclaration" &&
+                    current.id &&
+                    current.id.type === "Literal" &&
+                    typeof current.id.value === "string"
+                ) {
+                    return true;
+                }
+
+                current = current.parent;
+            }
+
+            return false;
+        }
+
         function removeDeclaration(fixer, declNode) {
             const target =
                 declNode.parent &&
@@ -108,6 +128,11 @@ module.exports = {
                     const declNode = defNode;
 
                     if (isExported(declNode)) {
+                        return;
+                    }
+
+                    // Skip interfaces/types inside module augmentations (declare module "...")
+                    if (isInsideModuleAugmentation(declNode)) {
                         return;
                     }
 
