@@ -3,7 +3,7 @@ module.exports = {
     meta: {
         type: "suggestion",
         docs: {
-            description: "Disallow more than N call expressions starting on the same line",
+            description: "Disallow more than N call expressions nested as arguments on the same line",
             category: "Style",
             recommended: true
         },
@@ -21,48 +21,27 @@ module.exports = {
     create(context) {
         const max = context.options[0]?.max ?? 3;
 
-        // line → Set of outermost CallExpression nodes on that line
-        /** @type {Map<number, import("eslint").Rule.Node[]>} */
-        const callsByLine = new Map();
-
-        // Track which nodes are nested inside another CallExpression
-        const nestedCalls = new Set();
-
         return {
             CallExpression(node) {
-                // In a multiline method chain, each chained call's CallExpression starts at
-                // the same line as the chain root (because callee.object is the previous call).
-                // We detect this by checking if the callee's property is on a different line
-                // than the callee's object — if so, it's intentionally broken and shouldn't count.
-                if (isMultilineChainLink(node)) {
+                // Only check calls that are themselves passed as arguments to another call.
+                // Method chains (callee is a MemberExpression) are intentionally readable
+                // and should not count regardless of line position.
+                if (!isArgumentCall(node)) {
                     return;
                 }
 
-                const line = node.loc.start.line;
-
-                if (!callsByLine.has(line)) {
-                    callsByLine.set(line, []);
+                // Only report on the outermost argument-call in the chain (parent is not an argument-call)
+                if (isArgumentCall(node.parent)) {
+                    return;
                 }
 
-                callsByLine.get(line).push(node);
+                // Count how deep the argument-nesting goes on this same line
+                const depth = argumentNestingDepth(node);
 
-                // Mark all descendant CallExpressions as nested
-                markNestedCalls(node, nestedCalls);
-            },
-
-            "Program:exit"() {
-                for (const [, calls] of callsByLine) {
-                    // Count all calls on this line (including nested ones)
-                    if (calls.length <= max) {
-                        continue;
-                    }
-
-                    // Report the outermost call on the line (not nested in another call on same line)
-                    const outermost = calls.find((n) => !nestedCalls.has(n)) ?? calls[0];
-
+                if (depth > max) {
                     context.report({
-                        node: outermost,
-                        message: `Too many call expressions on one line (${calls.length}). Maximum is ${max}. Break the chain across multiple lines.`
+                        node,
+                        message: `Too many nested call expressions on one line (${depth}). Maximum is ${max}. Break into multiple lines.`
                     });
                 }
             }
@@ -71,60 +50,64 @@ module.exports = {
 };
 
 /**
- * Returns true if this CallExpression is a link in a multiline method chain,
- * meaning the `.method` part is on a different line than the object it's called on.
- * e.g. `reply\n    .header(...)` — the property `header` is on a different line than `reply`.
+ * Returns true if this CallExpression is passed directly as an argument to another call.
+ * e.g. the inner calls in `fn(g(h()))`.
  *
  * @param {import("eslint").Rule.Node} node
  * @returns {boolean}
  */
-function isMultilineChainLink(node) {
-    const callee = node.callee;
+function isArgumentCall(node) {
+    const parent = node.parent;
 
-    if (callee.type !== "MemberExpression") {
-        return false;
-    }
-
-    return callee.object.loc.end.line !== callee.property.loc.start.line;
+    return (
+        parent?.type === "CallExpression" &&
+        parent.arguments.includes(node)
+    );
 }
 
 /**
- * Marks all CallExpression descendants of node as nested.
+ * Counts the total number of CallExpression nodes in this argument-nesting chain
+ * that start on the same line, walking both up (to outermost) and down (into arguments).
+ *
+ * Only counts calls connected via `arguments`, not via callee (method chains).
  *
  * @param {import("eslint").Rule.Node} node
- * @param {Set<import("eslint").Rule.Node>} nested
+ * @returns {number}
  */
-function markNestedCalls(node, nested) {
-    function walk(n) {
-        if (!n || typeof n !== "object") {
-            return;
-        }
+function argumentNestingDepth(node) {
+    // Walk up to the outermost call in this argument chain on the same line
+    let root = node;
+    const line = node.loc.start.line;
 
-        for (const key of Object.keys(n)) {
-            if (key === "parent") {
-                continue;
-            }
-
-            const child = n[key];
-
-            if (Array.isArray(child)) {
-                for (const item of child) {
-                    if (item && item.type === "CallExpression" && item !== node) {
-                        nested.add(item);
-                    }
-
-                    walk(item);
-                }
-            }
- else if (child && child.type) {
-                if (child.type === "CallExpression" && child !== node) {
-                    nested.add(child);
-                }
-
-                walk(child);
-            }
-        }
+    while (
+        root.parent?.type === "CallExpression" &&
+        root.parent.arguments.includes(root) &&
+        root.parent.loc.start.line === line
+    ) {
+        root = root.parent;
     }
 
-    walk(node);
+    // Count all calls reachable via arguments from root, on the same line
+    return countArgumentCalls(root, line);
+}
+
+/**
+ * Recursively counts CallExpression nodes reachable via arguments on the given line.
+ *
+ * @param {import("eslint").Rule.Node} node
+ * @param {number} line
+ * @returns {number}
+ */
+function countArgumentCalls(node, line) {
+    if (node.type !== "CallExpression" || node.loc.start.line !== line) {
+        return 0;
+    }
+
+    let count = 1;
+
+    for (const arg of node.arguments) {
+        count += countArgumentCalls(arg, line);
+    }
+
+    return count;
 }
