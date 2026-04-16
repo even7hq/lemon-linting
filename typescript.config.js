@@ -57,32 +57,6 @@ module.exports = [
             // Disable inline if statements
             "nonblock-statement-body-position": ["error", "below"],
 
-            // Enforce new lines after complex blocks, and before if statements
-            "padding-line-between-statements": [
-                "warn",
-                {
-                    blankLine: "always",
-                    prev: [
-                        "block",
-                        "multiline-block-like",
-                        "multiline-expression",
-                        "multiline-const",
-                        "multiline-let",
-                        "multiline-var"
-                    ],
-                    next: "*"
-                },
-                {
-                    blankLine: "always",
-                    prev: ["const", "let", "var", "expression", "return", "throw", "export", "import", "function", "class", "for", "while", "do", "switch", "try"],
-                    next: "if"
-                },
-                {
-                    blankLine: "any",
-                    prev: ["if", "block-like"],
-                    next: "if"
-                }
-            ],
 
             // Deny using multiple empty lines
             "no-multiple-empty-lines": ["warn", { max: 1 }],
@@ -141,6 +115,40 @@ module.exports = [
 
             // Allow unresolved imports — causes false positives in some cases
             "import/no-unresolved": "off"
+        }
+    },
+
+    {
+        // padding-line-between-statements only for .ts — JSX/TSX files have mixed
+        // statement/expression contexts that cause autofix to corrupt indentation.
+        files: ["**/*.ts"],
+
+        rules: {
+            "padding-line-between-statements": [
+                "warn",
+                {
+                    blankLine: "always",
+                    prev: [
+                        "block",
+                        "multiline-block-like",
+                        "multiline-expression",
+                        "multiline-const",
+                        "multiline-let",
+                        "multiline-var"
+                    ],
+                    next: "*"
+                },
+                {
+                    blankLine: "always",
+                    prev: ["const", "let", "var", "expression", "return", "throw", "export", "import", "function", "class", "for", "while", "do", "switch", "try"],
+                    next: "if"
+                },
+                {
+                    blankLine: "any",
+                    prev: ["if", "block-like"],
+                    next: "if"
+                }
+            ]
         }
     }
 ];
