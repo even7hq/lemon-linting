@@ -74,13 +74,23 @@ module.exports = {
                 return true;
             }
 
-            if (
-                typeNode.type === "TSTypeReference" &&
-                typeNode.typeName?.name === "Promise" &&
-                typeNode.typeParameters?.params?.length === 1 &&
-                typeNode.typeParameters.params[0].type === "TSVoidKeyword"
-            ) {
-                return true;
+            if (typeNode.type === "TSTypeReference" && typeNode.typeName?.name === "Promise") {
+                const params = typeNode.typeParameters?.params ?? [];
+
+                // Promise<void>, Promise<never>, Promise<undefined>, or bare Promise<>
+                if (params.length === 0) {
+                    return true;
+                }
+
+                const inner = params[0];
+
+                if (
+                    inner.type === "TSVoidKeyword" ||
+                    inner.type === "TSNeverKeyword" ||
+                    inner.type === "TSUndefinedKeyword"
+                ) {
+                    return true;
+                }
             }
 
             return false;
