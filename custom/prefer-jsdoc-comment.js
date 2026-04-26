@@ -79,6 +79,11 @@ module.exports = {
                 return;
             }
 
+            // Ignore editor directives like #region / #endregion used for code folding
+            if (comments.some((c) => /^\s*#(region|endregion)\b/.test(c.value))) {
+                return;
+            }
+
             if (hasBlankLineBetween(comments[comments.length - 1], node)) {
                 return;
             }
