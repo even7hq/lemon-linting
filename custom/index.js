@@ -14,6 +14,7 @@ module.exports = {
         "require-jsdoc-param-returns": require("./require-jsdoc-param-returns"),
         "require-multiline-jsdoc": require("./require-multiline-jsdoc"),
         "max-inline-calls": require("./max-inline-calls"),
-        "require-blank-lines-around-jsdoc": require("./require-blank-lines-around-jsdoc")
+        "require-blank-lines-around-jsdoc": require("./require-blank-lines-around-jsdoc"),
+        "require-jsdoc-throws": require("./require-jsdoc-throws")
     }
 };
