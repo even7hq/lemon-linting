@@ -67,13 +67,11 @@ const config = [
             "no-async-promise-executor": "error",
 
             // Objects need to have a newline
-            "object-curly-newline": ["warn", {
-                ObjectExpression: {
-                    multiline: true,
-                    consistent: true,
-                    minProperties: 3
-                }
-            }],
+            // Only enforce consistency — never force newlines based on property count.
+            // The ESLint indent rule does not correctly re-indent objects that are broken
+            // by object-curly-newline when they appear as function call arguments,
+            // producing col-0 closing braces after autofix.
+            "object-curly-newline": ["warn", { multiline: true, consistent: true }],
 
             // Object properties need a newline
             "object-property-newline": ["warn", { allowAllPropertiesOnSameLine: true }],
