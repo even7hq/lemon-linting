@@ -87,6 +87,9 @@ const config = [
             // No trailing spaces
             "no-trailing-spaces": ["warn", { ignoreComments: true }],
 
+            // Disallow multiple consecutive spaces (alignment padding)
+            "no-multi-spaces": ["warn", { ignoreEOLComments: true, exceptions: {} }],
+
             // Use arrow function callbacks
             "prefer-arrow-callback": "error",
 
