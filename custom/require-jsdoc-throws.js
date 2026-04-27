@@ -223,7 +223,7 @@ module.exports = {
             // If every throw is a bare re-throw (e/err/error) we still flag but
             // insert a generic placeholder so the developer fills it in.
             const tagsToInsert = labels.length > 0
-                ? labels.map((l) => `@throws {{@link ${l}}}`)
+                ? labels.map((l) => `@throws {${l}} {@link ${l}}`)
                 : ["@throws {unknown}"];
 
             context.report({
