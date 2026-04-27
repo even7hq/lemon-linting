@@ -70,7 +70,7 @@ module.exports = {
 
             const typeNode = returnTypeAnnotation.typeAnnotation ?? returnTypeAnnotation;
 
-            if (typeNode.type === "TSVoidKeyword") {
+            if (typeNode.type === "TSVoidKeyword" || typeNode.type === "TSNeverKeyword") {
                 return true;
             }
 
