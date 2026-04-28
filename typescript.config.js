@@ -2,6 +2,100 @@ const tsPlugin = require("@typescript-eslint/eslint-plugin");
 const tsParser = require("@typescript-eslint/parser");
 const importPlugin = require("eslint-plugin-import-x");
 
+/**
+ * Rules that apply to any file with TypeScript content — .ts, .tsx, .vue <script lang="ts">,
+ * .svelte <script lang="ts">, etc. Exported so Vue/Svelte configs can re-apply them in their
+ * own parser context where the typescript.config files/glob does not match.
+ *
+ * @type {Record<string, import("eslint").Linter.RuleEntry>}
+ */
+const tsRules = {
+    // Allow explicit any
+    "@typescript-eslint/no-explicit-any": "off",
+
+    // Disabled — local/remove-unused-vars handles this with autofix
+    "@typescript-eslint/no-unused-vars": "off",
+
+    // Allow TS comments
+    "@typescript-eslint/ban-ts-comment": "off",
+
+    // This conflicts with keyword-spacing
+    "keyword-spacing": "off",
+
+    // Allow namespaces
+    "@typescript-eslint/no-namespace": "off",
+
+    // Enforce brace style
+    curly: "error",
+
+    // Enforce else if on new line
+    "brace-style": ["error", "1tbs", { allowSingleLine: false }],
+
+    // Enforce semicolons
+    semi: ["warn", "always"],
+
+    // Disable inline if statements
+    "nonblock-statement-body-position": ["error", "below"],
+
+    // Deny using multiple empty lines
+    "no-multiple-empty-lines": ["warn", { max: 1 }],
+
+    // Enforce using camel case
+    "@typescript-eslint/naming-convention": [
+        "warn",
+        {
+            selector: "variableLike",
+            format: ["camelCase", "PascalCase", "UPPER_CASE"],
+            filter: { match: false, regex: "^_+" }
+        },
+        {
+            selector: "parameter",
+            format: ["camelCase"],
+            filter: { match: false, regex: "^_+" }
+        },
+        {
+            selector: ["classProperty", "classMethod"],
+            format: ["camelCase", "snake_case"]
+        },
+        {
+            selector: ["classProperty"],
+            modifiers: ["static"],
+            format: ["camelCase", "snake_case", "UPPER_CASE"]
+        },
+        {
+            selector: "enumMember",
+            format: ["UPPER_CASE"]
+        },
+        {
+            selector: "typeLike",
+            format: ["PascalCase", "UPPER_CASE"]
+        }
+    ],
+
+    // Only double quotes
+    quotes: ["error", "double", {
+        avoidEscape: false,
+        allowTemplateLiterals: true
+    }],
+
+    // Override base indent — ignoredNodes allows } else\nif pattern and nested ternaries
+    indent: ["warn", 4, {
+        SwitchCase: 1,
+        ignoredNodes: [
+            "IfStatement > IfStatement.alternate",
+            "ConditionalExpression > ObjectExpression",
+            "ConditionalExpression > ObjectExpression > *",
+            // Allows trailing arguments of a multiline call to be indented
+            // at the call level rather than the inner expression level.
+            // e.g. setTimeout(() => ..., delay) where delay is on its own line.
+            "CallExpression > .arguments:not(:first-child)"
+        ]
+    }],
+
+    // Allow unresolved imports — causes false positives in some cases
+    "import/no-unresolved": "off"
+};
+
 /** @type {import("eslint").Linter.Config[]} */
 module.exports = [
     {
@@ -29,93 +123,7 @@ module.exports = [
             }
         },
 
-        rules: {
-            // Allow explicit any
-            "@typescript-eslint/no-explicit-any": "off",
-
-            // Disabled — local/remove-unused-vars handles this with autofix
-            "@typescript-eslint/no-unused-vars": "off",
-
-            // Allow TS comments
-            "@typescript-eslint/ban-ts-comment": "off",
-
-            // This conflicts with keyword-spacing
-            "keyword-spacing": "off",
-
-            // Allow namespaces
-            "@typescript-eslint/no-namespace": "off",
-
-            // Enforce brace style
-            curly: "error",
-
-            // Enforce else if on new line
-            "brace-style": ["error", "1tbs", { allowSingleLine: false }],
-
-            // Enforce semicolons
-            semi: ["warn", "always"],
-
-            // Disable inline if statements
-            "nonblock-statement-body-position": ["error", "below"],
-
-
-            // Deny using multiple empty lines
-            "no-multiple-empty-lines": ["warn", { max: 1 }],
-
-            // Enforce using camel case
-            "@typescript-eslint/naming-convention": [
-                "warn",
-                {
-                    selector: "variableLike",
-                    format: ["camelCase", "PascalCase", "UPPER_CASE"],
-                    filter: { match: false, regex: "^_+" }
-                },
-                {
-                    selector: "parameter",
-                    format: ["camelCase"],
-                    filter: { match: false, regex: "^_+" }
-                },
-                {
-                    selector: ["classProperty", "classMethod"],
-                    format: ["camelCase", "snake_case"]
-                },
-                {
-                    selector: ["classProperty"],
-                    modifiers: ["static"],
-                    format: ["camelCase", "snake_case", "UPPER_CASE"]
-                },
-                {
-                    selector: "enumMember",
-                    format: ["UPPER_CASE"]
-                },
-                {
-                    selector: "typeLike",
-                    format: ["PascalCase", "UPPER_CASE"]
-                }
-            ],
-
-            // Only double quotes
-            quotes: ["error", "double", {
-                avoidEscape: false,
-                allowTemplateLiterals: true
-            }],
-
-            // Override base indent — ignoredNodes allows } else\nif pattern and nested ternaries
-            indent: ["warn", 4, {
-                SwitchCase: 1,
-                ignoredNodes: [
-                    "IfStatement > IfStatement.alternate",
-                    "ConditionalExpression > ObjectExpression",
-                    "ConditionalExpression > ObjectExpression > *",
-                    // Allows trailing arguments of a multiline call to be indented
-                    // at the call level rather than the inner expression level.
-                    // e.g. setTimeout(() => ..., delay) where delay is on its own line.
-                    "CallExpression > .arguments:not(:first-child)"
-                ]
-            }],
-
-            // Allow unresolved imports — causes false positives in some cases
-            "import/no-unresolved": "off"
-        }
+        rules: tsRules
     },
 
     {
@@ -152,3 +160,6 @@ module.exports = [
         }
     }
 ];
+
+module.exports.tsRules = tsRules;
+module.exports.tsPlugin = tsPlugin;

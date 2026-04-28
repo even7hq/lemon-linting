@@ -1,6 +1,7 @@
 const commonConfig = require("./common.config");
 const { localPlugin, localRules } = require("./common.config");
 const typescriptConfig = require("./typescript.config");
+const { tsRules, tsPlugin } = require("./typescript.config");
 const sveltePlugin = require("eslint-plugin-svelte");
 const svelteParser = require("svelte-eslint-parser");
 const tsParser = require("@typescript-eslint/parser");
@@ -20,7 +21,8 @@ module.exports = [
         // Re-register the local plugin because svelte-eslint-parser creates its own
         // config context for .svelte files, where plugins from common.config are not inherited.
         plugins: {
-            local: localPlugin
+            local: localPlugin,
+            "@typescript-eslint": tsPlugin
         },
 
         languageOptions: {
@@ -38,6 +40,13 @@ module.exports = [
         rules: {
             // Re-apply all local/* rules so they work inside Svelte <script> blocks
             ...localRules,
+
+            // Re-apply TypeScript rules — typescript.config only matches *.ts/tsx,
+            // so they must be explicitly repeated here for <script lang="ts"> blocks.
+            ...tsRules,
+
+            // svelte/indent handles indentation inside .svelte files — disable the base rule
+            indent: "off",
 
             // Allow console in Svelte files
             "no-console": ["error", { allow: ["error", "warn", "debug", "info"] }],

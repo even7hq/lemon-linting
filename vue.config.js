@@ -1,6 +1,7 @@
 const commonConfig = require("./common.config");
 const { localPlugin, localRules } = require("./common.config");
 const typescriptConfig = require("./typescript.config");
+const { tsRules, tsPlugin } = require("./typescript.config");
 const vuePlugin = require("eslint-plugin-vue");
 const tsParser = require("@typescript-eslint/parser");
 const globals = require("globals");
@@ -20,7 +21,8 @@ module.exports = [
         // Re-register the local plugin here because vue-eslint-parser creates its own
         // config context for .vue files, where plugins from common.config are not inherited.
         plugins: {
-            local: localPlugin
+            local: localPlugin,
+            "@typescript-eslint": tsPlugin
         },
 
         languageOptions: {
@@ -40,6 +42,13 @@ module.exports = [
         rules: {
             // Re-apply all local/* rules so they work inside Vue <script> blocks
             ...localRules,
+
+            // Re-apply TypeScript rules — typescript.config only matches *.ts/tsx,
+            // so they must be explicitly repeated here for <script lang="ts"> blocks.
+            ...tsRules,
+
+            // vue/script-indent handles indentation inside .vue files — disable the base rule
+            indent: "off",
 
             // Allow console in Vue files
             "no-console": ["error", { allow: ["error", "warn", "debug", "info"] }],
