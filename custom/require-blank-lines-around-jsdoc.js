@@ -91,7 +91,15 @@ module.exports = {
             // ── 2. Blank line AFTER the documented node ───────────────────────
             const tokenAfter = sourceCode.getTokenAfter(node, { includeComments: true });
 
-            if (tokenAfter && tokenAfter.value !== "}" && tokenAfter.value !== "]") {
+            // Skip when the node is the last thing before a closing delimiter or end-of-block.
+            // "}" and "]" cover closing braces/brackets; tokens starting with "</" cover
+            // Vue SFC closing tags like </script> and </template>.
+            const isClosingDelimiter = !tokenAfter ||
+                tokenAfter.value === "}" ||
+                tokenAfter.value === "]" ||
+                tokenAfter.value.startsWith("</");
+
+            if (!isClosingDelimiter) {
                 const blanksAfter = blankLinesBetween(node.range[1], tokenAfter.range[0]);
 
                 if (blanksAfter < 1) {

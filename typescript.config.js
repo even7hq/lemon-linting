@@ -89,7 +89,7 @@ module.exports = [
                 },
                 {
                     selector: "typeLike",
-                    format: ["PascalCase"]
+                    format: ["PascalCase", "UPPER_CASE"]
                 }
             ],
 
