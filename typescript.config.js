@@ -81,6 +81,9 @@ const tsRules = {
     // Override base indent — ignoredNodes allows } else\nif pattern and nested ternaries
     indent: ["warn", 4, {
         SwitchCase: 1,
+        // Ignore comment lines — `/*` inside JSDoc text confuses the indent tokenizer
+        // and produces false "Expected indentation of 0" errors on following lines.
+        ignoreComments: true,
         ignoredNodes: [
             "IfStatement > IfStatement.alternate",
             "ConditionalExpression > ObjectExpression",
