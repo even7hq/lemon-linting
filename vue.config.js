@@ -12,8 +12,9 @@ module.exports = [
     ...commonConfig,
     ...typescriptConfig,
 
-    // vue-eslint-parser as the main parser, with ts/lua sub-parsers
-    ...vuePlugin.configs["flat/recommended"],
+    // vue-eslint-parser as the main parser, with ts/lua sub-parsers.
+    // Using vue2-recommended — the project targets Vue 2, not Vue 3.
+    ...vuePlugin.configs["flat/vue2-recommended"],
 
     {
         files: ["**/*.vue"],
