@@ -35,7 +35,9 @@ module.exports = {
                 const currentDoc = getJsDocComment(current);
                 const previousDoc = getJsDocComment(previous);
 
-                if (!currentDoc && !previousDoc) {
+                // Only enforce a blank line when the *current* property has a JSDoc comment.
+                // A plain `//` comment or no comment after a documented prop is fine.
+                if (!currentDoc) {
                     continue;
                 }
 
