@@ -108,6 +108,12 @@ module.exports = {
             for (const param of params) {
                 if (param.type === "Identifier") {
                     const name = param.name;
+
+                    // `this` is a TypeScript typing construct, not a real parameter.
+                    if (name === "this") {
+                        continue;
+                    }
+
                     const hasTag = new RegExp(`@param\\s+(\\{[^}]+\\}\\s+)?${name}\\b`).test(commentValue);
 
                     if (!hasTag) {

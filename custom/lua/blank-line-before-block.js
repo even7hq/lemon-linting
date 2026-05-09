@@ -1,0 +1,43 @@
+/** @type {import("eslint").Rule.RuleModule} */
+module.exports = {
+    meta: {
+        type: "layout",
+        docs: {
+            description: "Enforce a blank line before block statements (if, while, for, do)",
+            category: "Stylistic Issues",
+            recommended: true
+        },
+        fixable: "whitespace",
+        schema: []
+    },
+
+    create(context) {
+        const sourceCode = context.sourceCode;
+
+        function checkPadding(node) {
+            const line = node.loc.start.line;
+            if (line <= 1) return;
+
+            const lineAbove = sourceCode.lines[line - 2];
+            
+            if (lineAbove.trim() !== "") {
+                context.report({
+                    node,
+                    message: "Expected a blank line before this block.",
+                    fix(fixer) {
+                        return fixer.insertTextBefore(node, "\n");
+                    }
+                });
+            }
+        }
+
+        return {
+            LuaIfStatement: checkPadding,
+            LuaWhileStatement: checkPadding,
+            LuaForNumericStatement: checkPadding,
+            LuaForGenericStatement: checkPadding,
+            LuaDoStatement: checkPadding,
+            LuaFunctionDeclaration: checkPadding
+        };
+    }
+};

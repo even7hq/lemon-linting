@@ -15,6 +15,7 @@
     "./vue.config": "./vue.config.js",
     "./svelte.config": "./svelte.config.js",
     "./define.config": "./define.config.js",
+    "./lua.config": "./lua.config.js",
     "./custom": "./custom/index.js"
   },
   "bin": {
@@ -35,6 +36,7 @@
     "globals": "^17.4.0",
     "svelte": "^5.55.5",
     "svelte-eslint-parser": "^1.6.0",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "luaparse": "^0.3.1"
   }
 }
