@@ -21,7 +21,7 @@ const config = [
             }
         },
         rules: {
-            "lua/indent": ["warn", 4],
+            "lua/indent": "off",
             "lua/no-same-line-blocks": "warn",
             "lua/require-jsdoc": "warn",
             "lua/require-call-parens": "warn",
