@@ -40,8 +40,22 @@ module.exports = {
                     off += l.length + 1;
                 }
 
+                // Track whether we're inside a long string [[ ... ]] to avoid
+                // false positives on Lua code embedded inside string literals.
+                let insideLongString = false;
+
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i];
+
+                    if (insideLongString) {
+                        if (line.includes("]]")) insideLongString = false;
+                        continue;
+                    }
+
+                    if (line.includes("[[")) {
+                        if (!line.includes("]]")) insideLongString = true;
+                        continue;
+                    }
 
                     if (!BLOCK_RE.test(line)) continue;
 
@@ -54,15 +68,15 @@ module.exports = {
                     // Comment immediately above belongs to this block — OK.
                     if (aboveTrimmed.startsWith("--")) continue;
 
-                    // Offset of the start of the current line in the full text.
-                    const insertAt = lineOffsets[i];
+                    // End of the line above (before its \n) — insert \n there.
+                    const endOfLineAbove = lineOffsets[i] - 1;
 
                     context.report({
                         loc: { line: i + 1, column: 0 },
                         message: "Expected a blank line before this block.",
                         fix(fixer) {
                             return fixer.insertTextAfterRange(
-                                [lineOffsets[i - 1], lineOffsets[i] - 1],
+                                [lineOffsets[i - 1], endOfLineAbove],
                                 "\n"
                             );
                         }
