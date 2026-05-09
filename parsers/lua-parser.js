@@ -1,6 +1,11 @@
 const luaparse = require("luaparse");
 
 module.exports = {
+    meta: {
+        name: "lua-parser",
+        version: "1.0.0"
+    },
+
     parseForESLint(code, options) {
         try {
             const ast = luaparse.parse(code, {

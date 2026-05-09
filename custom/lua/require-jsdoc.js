@@ -13,50 +13,54 @@ module.exports = {
     create(context) {
         const sourceCode = context.sourceCode;
 
-        function getJsDocComment(node) {
+        function getDocBlock(node) {
             const comments = sourceCode.getCommentsBefore(node);
+            if (!comments.length) return null;
+
+            // Collect the unbroken run of Line comments immediately before the node.
+            const block = [];
+
             for (let i = comments.length - 1; i >= 0; i--) {
-                const comment = comments[i];
-                if (comment.raw.startsWith("---") || (comment.raw.startsWith("--[[") && comment.value.startsWith("*"))) {
-                    return comment;
-                }
+                const c = comments[i];
+
+                if (c.type !== "Line") break;
+
+                block.unshift(c);
             }
-            return null;
+
+            if (!block.length) return null;
+
+            // Only treat as a doc block when it contains at least one @tag.
+            const hasTag = block.some((c) => /@param\b|@returns?\b|@throws?\b/.test(c.raw));
+
+            if (!hasTag) return null;
+
+            return block;
         }
 
-        function getTagNames(commentValue) {
-            const tagPattern = /@(\w+)/g;
-            const tags = new Set();
-            let match;
-            while ((match = tagPattern.exec(commentValue)) !== null) {
-                tags.add(match[1]);
-            }
-            return tags;
-        }
+        function checkFunction(node, block) {
+            if (!block) return;
 
-        function checkFunction(node, commentNode) {
-            if (!commentNode) return;
-
-            const commentValue = commentNode.value;
-            const tags = getTagNames(commentValue);
+            // Merge all comment raws into a single string for tag searching.
+            const combined = block.map((c) => c.raw).join("\n");
             const params = node.params ?? [];
 
             for (const param of params) {
                 if (param.type === "Identifier") {
                     const name = param.name;
-                    const hasTag = new RegExp(`@param\\s+${name}\\b`).test(commentValue);
-                    if (!hasTag) {
+
+                    if (!new RegExp(`@param\\s+${name}\\b`).test(combined)) {
                         context.report({
-                            node: commentNode,
+                            node,
                             message: `Missing @param tag for parameter "${name}".`
                         });
                     }
                 }
             }
 
-            if (!tags.has("returns") && !tags.has("return")) {
+            if (!/@returns?\b/.test(combined)) {
                 context.report({
-                    node: commentNode,
+                    node,
                     message: "Missing @return tag for documented function."
                 });
             }
@@ -64,9 +68,10 @@ module.exports = {
 
         return {
             LuaFunctionDeclaration(node) {
-                const commentNode = getJsDocComment(node);
-                if (commentNode) {
-                    checkFunction(node, commentNode);
+                const block = getDocBlock(node);
+
+                if (block) {
+                    checkFunction(node, block);
                 }
             }
         };

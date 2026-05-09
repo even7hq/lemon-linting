@@ -19,16 +19,20 @@ module.exports = {
             if (line <= 1) return;
 
             const lineAbove = sourceCode.lines[line - 2];
-            
-            if (lineAbove.trim() !== "") {
-                context.report({
-                    node,
-                    message: "Expected a blank line before this block.",
-                    fix(fixer) {
-                        return fixer.insertTextBefore(node, "\n");
-                    }
-                });
-            }
+            const trimmed = lineAbove.trim();
+
+            if (trimmed === "") return;
+
+            // A comment line immediately above is fine — it belongs to the block.
+            if (trimmed.startsWith("--")) return;
+
+            context.report({
+                node,
+                message: "Expected a blank line before this block.",
+                fix(fixer) {
+                    return fixer.insertTextBefore(node, "\n");
+                }
+            });
         }
 
         return {
