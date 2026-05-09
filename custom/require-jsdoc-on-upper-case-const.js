@@ -79,14 +79,19 @@ module.exports = {
         }
 
         /**
-         * Builds a JSDoc block from an array of `//` line comments, preserving
-         * the indentation of the first comment line.
+         * Builds a JSDoc block from an array of `//` line comments.
+         *
+         * The replacement range starts at the first `//` token — the leading
+         * whitespace before it is already in the source and is NOT replaced,
+         * so we must NOT repeat it in the generated text.
          */
         function buildJsdocFromLineComments(lineComments) {
             const indent = " ".repeat(lineComments[0].loc.start.column);
             const lines = lineComments.map((c) => `${indent} * ${c.value.trimStart()}`);
 
-            return `${indent}/**\n${lines.join("\n")}\n${indent} */`;
+            // No leading indent on the opening `/**` — the existing source
+            // whitespace before the first `//` is preserved by the fixer.
+            return `/**\n${lines.join("\n")}\n${indent} */`;
         }
 
         return {
