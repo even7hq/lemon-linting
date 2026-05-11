@@ -49,6 +49,12 @@ const tsRules = {
             filter: { match: false, regex: "^_+" }
         },
         {
+            // Destructured variables may come from external APIs with snake_case keys.
+            selector: "variable",
+            modifiers: ["destructured"],
+            format: ["camelCase", "PascalCase", "UPPER_CASE", "snake_case"]
+        },
+        {
             selector: "parameter",
             format: ["camelCase"],
             filter: { match: false, regex: "^_+" }
