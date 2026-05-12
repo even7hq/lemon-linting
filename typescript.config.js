@@ -97,7 +97,12 @@ const tsRules = {
             // Allows trailing arguments of a multiline call to be indented
             // at the call level rather than the inner expression level.
             // e.g. setTimeout(() => ..., delay) where delay is on its own line.
-            "CallExpression > .arguments:not(:first-child)"
+            "CallExpression > .arguments:not(:first-child)",
+            // Class property initializers with inline type annotations produce
+            // false positives because the type body shifts the indent reference.
+            // e.g. `public foo: { bar: string } = { bar: "x" }`
+            "PropertyDefinition > ObjectExpression",
+            "PropertyDefinition > ObjectExpression > *"
         ]
     }],
 
