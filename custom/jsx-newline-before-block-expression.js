@@ -21,7 +21,31 @@ module.exports = {
                 return false;
             }
 
-            if (expr.type === "LogicalExpression" || expr.type === "ConditionalExpression") {
+            // Only treat as a "block" expression when it stands alone among JSX
+            // children — i.e. the parent has no JSXText siblings with real content
+            // on the same line. This excludes inline ternaries like:
+            //   <Typography>{x > 0 ? x : "?"} suffix</Typography>
+            const parent = node.parent;
+
+            if (parent && parent.children) {
+                const hasMixedTextSibling = parent.children.some((child) => {
+                    if (child === node) return false;
+                    if (child.type !== "JSXText") return false;
+
+                    const text = child.value;
+                    // Real content on same line(s) as this expression container.
+                    return text.replace(/\n/g, "").trim() !== "";
+                });
+
+                if (hasMixedTextSibling) return false;
+            }
+
+            if (expr.type === "LogicalExpression") {
+                return true;
+            }
+
+            // Only standalone ternaries — not ones mixed with surrounding text.
+            if (expr.type === "ConditionalExpression") {
                 return true;
             }
 
