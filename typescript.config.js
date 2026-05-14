@@ -1,6 +1,6 @@
+const importPlugin = require("eslint-plugin-import-x");
 const tsPlugin = require("@typescript-eslint/eslint-plugin");
 const tsParser = require("@typescript-eslint/parser");
-const importPlugin = require("eslint-plugin-import-x");
 
 /**
  * Rules that apply to any file with TypeScript content — .ts, .tsx, .vue <script lang="ts">,
@@ -109,6 +109,11 @@ const tsRules = {
     // Allow unresolved imports — causes false positives in some cases
     "import/no-unresolved": "off",
 
+    // Disable the base rule — it does not understand TS overloads and flags
+    // every overload signature as a redeclaration.
+    "no-redeclare": "off",
+    "@typescript-eslint/no-redeclare": "error",
+
     // Enforce `import type` when the import is only used as a type.
     "@typescript-eslint/consistent-type-imports": ["warn", {
         prefer: "type-imports",
@@ -117,7 +122,9 @@ const tsRules = {
     }]
 };
 
-/** @type {import("eslint").Linter.Config[]} */
+/**
+ * @type {import("eslint").Linter.Config[]}
+ */
 module.exports = [
     {
         files: ["**/*.ts", "**/*.tsx"],
@@ -140,6 +147,7 @@ module.exports = [
                     alwaysTryTypes: true,
                     extensions: [".ts", ".tsx", ".d.ts", ".js", ".jsx", ".json"]
                 },
+
                 node: true
             }
         },
@@ -165,6 +173,7 @@ module.exports = [
                         "multiline-let",
                         "multiline-var"
                     ],
+
                     next: "*"
                 },
                 {
