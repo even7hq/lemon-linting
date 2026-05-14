@@ -107,7 +107,14 @@ const tsRules = {
     }],
 
     // Allow unresolved imports — causes false positives in some cases
-    "import/no-unresolved": "off"
+    "import/no-unresolved": "off",
+
+    // Enforce `import type` when the import is only used as a type.
+    "@typescript-eslint/consistent-type-imports": ["warn", {
+        prefer: "type-imports",
+        fixStyle: "separate-type-imports",
+        disallowTypeAnnotations: false
+    }]
 };
 
 /** @type {import("eslint").Linter.Config[]} */
