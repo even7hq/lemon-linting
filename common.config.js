@@ -97,7 +97,7 @@ const config = [
             "arrow-parens": "error",
 
             // Requires `const` for never-reused variables
-            "prefer-const": "error",
+            "prefer-const": ["error", { destructuring: "all" }],
 
             // Enforce `for` loop update moving the counter in the right direction
             "for-direction": "error",
