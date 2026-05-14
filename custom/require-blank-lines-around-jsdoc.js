@@ -99,7 +99,32 @@ module.exports = {
                 tokenAfter.value === "]" ||
                 tokenAfter.value.startsWith("</");
 
-            if (!isClosingDelimiter) {
+            // Skip when the next sibling is an overload signature of the same function/method.
+            // Overloads share the same name and sit consecutively — no blank line needed between them.
+            const nextSibling = (() => {
+                const parent = node.parent;
+
+                if (!parent || !parent.body) return null;
+
+                const siblings = Array.isArray(parent.body) ? parent.body : parent.body.body;
+
+                if (!siblings) return null;
+
+                const idx = siblings.indexOf(node);
+
+                return idx >= 0 ? siblings[idx + 1] : null;
+            })();
+
+            const isOverloadSibling = nextSibling && (
+                nextSibling.type === "TSDeclareMethod" ||
+                nextSibling.type === "TSMethodSignature" ||
+                (
+                    (nextSibling.type === "MethodDefinition" || nextSibling.type === "FunctionDeclaration") &&
+                    nextSibling.key?.name === node.key?.name
+                )
+            );
+
+            if (!isClosingDelimiter && !isOverloadSibling) {
                 const blanksAfter = blankLinesBetween(node.range[1], tokenAfter.range[0]);
 
                 if (blanksAfter < 1) {
