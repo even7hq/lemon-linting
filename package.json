@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "UNLICENSED",
   "author": "Matheus Giovani <matheus+devambient@even7.com.br>",
-  "repository": "https://github.com/edjdigital/luckymaker-linting",
+  "repository": "https://github.com/even7hq/luckymaker-linting",
   "exports": {
     ".": "./index.js",
     "./ts-parser-path": "./ts-parser-path.js",
