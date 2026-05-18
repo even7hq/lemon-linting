@@ -68,9 +68,10 @@ module.exports = {
                     // Comment immediately above belongs to this block - OK.
                     if (aboveTrimmed.startsWith("--")) continue;
 
-                    // Line above ends with a block opener - this is the first
+                    // Line above ends with a block opener — this is the first
                     // statement inside that block, no blank line needed.
-                    if (/(?:function\s*\(.*\)|then|do|repeat)\s*$/.test(aboveTrimmed)) continue;
+                    // Covers: function foo(...), function(...), then, do, repeat
+                    if (/\bfunction\b.*\)\s*$|\bthen\s*$|\bdo\s*$|\brepeat\s*$/.test(aboveTrimmed)) continue;
 
                     // End of the line above (before its \n) - insert \n there.
                     const endOfLineAbove = lineOffsets[i] - 1;
