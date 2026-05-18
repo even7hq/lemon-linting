@@ -65,13 +65,23 @@ module.exports = {
                     // Already blank above - OK.
                     if (aboveTrimmed === "") continue;
 
-                    // Comment immediately above belongs to this block - OK.
+                    // Comment immediately above belongs to this block — OK.
                     if (aboveTrimmed.startsWith("--")) continue;
 
                     // Line above ends with a block opener — this is the first
                     // statement inside that block, no blank line needed.
                     // Covers: function foo(...), function(...), then, do, repeat
                     if (/\bfunction\b.*\)\s*$|\bthen\s*$|\bdo\s*$|\brepeat\s*$/.test(aboveTrimmed)) continue;
+
+                    // Line above ends with { or , — we're inside a table/argument
+                    // list, so function() items don't need a blank line before them.
+                    if (/[{,]\s*$/.test(aboveTrimmed)) continue;
+
+                    // Current line is a function() used as a table value or argument
+                    // (i.e. trimmed line starts with `function` but ends with `end,` or `end`
+                    // on the same line, or is followed by more table entries).
+                    // Detect: anonymous function as table item — line starts with `function(`
+                    if (/^\s*function\s*\(/.test(line) && /[,}]\s*$/.test(aboveTrimmed.replace(/--.*$/, ""))) continue;
 
                     // End of the line above (before its \n) - insert \n there.
                     const endOfLineAbove = lineOffsets[i] - 1;
