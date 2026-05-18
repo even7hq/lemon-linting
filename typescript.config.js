@@ -3,7 +3,7 @@ const tsPlugin = require("@typescript-eslint/eslint-plugin");
 const tsParser = require("@typescript-eslint/parser");
 
 /**
- * Rules that apply to any file with TypeScript content — .ts, .tsx, .vue <script lang="ts">,
+ * Rules that apply to any file with TypeScript content - .ts, .tsx, .vue <script lang="ts">,
  * .svelte <script lang="ts">, etc. Exported so Vue/Svelte configs can re-apply them in their
  * own parser context where the typescript.config files/glob does not match.
  *
@@ -13,7 +13,7 @@ const tsRules = {
     // Allow explicit any
     "@typescript-eslint/no-explicit-any": "off",
 
-    // Disabled — local/remove-unused-vars handles this with autofix
+    // Disabled - local/remove-unused-vars handles this with autofix
     "@typescript-eslint/no-unused-vars": "off",
 
     // Allow TS comments
@@ -84,10 +84,10 @@ const tsRules = {
         allowTemplateLiterals: true
     }],
 
-    // Override base indent — ignoredNodes allows } else\nif pattern and nested ternaries
+    // Override base indent - ignoredNodes allows } else\nif pattern and nested ternaries
     indent: ["warn", 4, {
         SwitchCase: 1,
-        // Ignore comment lines — `/*` inside JSDoc text confuses the indent tokenizer
+        // Ignore comment lines - `/*` inside JSDoc text confuses the indent tokenizer
         // and produces false "Expected indentation of 0" errors on following lines.
         ignoreComments: true,
         ignoredNodes: [
@@ -106,10 +106,10 @@ const tsRules = {
         ]
     }],
 
-    // Allow unresolved imports — causes false positives in some cases
+    // Allow unresolved imports - causes false positives in some cases
     "import/no-unresolved": "off",
 
-    // Disable the base rule — it does not understand TS overloads and flags
+    // Disable the base rule - it does not understand TS overloads and flags
     // every overload signature as a redeclaration.
     "no-redeclare": "off",
     "@typescript-eslint/no-redeclare": "error",
@@ -156,7 +156,7 @@ module.exports = [
     },
 
     {
-        // padding-line-between-statements only for .ts — JSX/TSX files have mixed
+        // padding-line-between-statements only for .ts - JSX/TSX files have mixed
         // statement/expression contexts that cause autofix to corrupt indentation.
         files: ["**/*.ts"],
 

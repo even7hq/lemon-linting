@@ -41,11 +41,11 @@ module.exports = [
             // Re-apply all local/* rules so they work inside Svelte <script> blocks
             ...localRules,
 
-            // Re-apply TypeScript rules — typescript.config only matches *.ts/tsx,
+            // Re-apply TypeScript rules - typescript.config only matches *.ts/tsx,
             // so they must be explicitly repeated here for <script lang="ts"> blocks.
             ...tsRules,
 
-            // svelte/indent handles indentation inside .svelte files — disable the base rule
+            // svelte/indent handles indentation inside .svelte files - disable the base rule
             indent: "off",
 
             // Allow console in Svelte files

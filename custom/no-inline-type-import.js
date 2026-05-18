@@ -16,7 +16,7 @@ module.exports = {
     meta: {
         type: "suggestion",
         docs: {
-            description: "Disallow inline import() expressions used as type annotations — use top-level `import type` instead",
+            description: "Disallow inline import() expressions used as type annotations - use top-level `import type` instead",
             category: "Best Practices",
             recommended: true
         },

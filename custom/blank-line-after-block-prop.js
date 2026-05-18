@@ -56,7 +56,7 @@ module.exports = {
 
                 context.report({
                     node: curr,
-                    message: "Expected a blank line before this property — the previous property ends with `}` or `)`.",
+                    message: "Expected a blank line before this property - the previous property ends with `}` or `)`.",
                     fix(fixer) {
                         const tokenAfterPrev = sourceCode.getTokenAfter(lastToken);
 

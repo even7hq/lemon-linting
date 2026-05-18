@@ -34,7 +34,7 @@ module.exports = {
                 const ifIndent = " ".repeat(node.loc.start.column);
                 const expectedBetween = "\n" + ifIndent;
 
-                // Already on a new line — check that the indent matches the parent `if` column.
+                // Already on a new line - check that the indent matches the parent `if` column.
                 // Allow comments between `else` and `if` (strip them before comparing indent).
                 if (betweenText.includes("\n")) {
                     // Strip comment lines and collapse multiple newlines to one,

@@ -13,7 +13,7 @@ module.exports = [
     ...typescriptConfig,
 
     // vue-eslint-parser as the main parser, with ts/lua sub-parsers.
-    // Using vue2-recommended — the project targets Vue 2, not Vue 3.
+    // Using vue2-recommended - the project targets Vue 2, not Vue 3.
     ...vuePlugin.configs["flat/vue2-recommended"],
 
     {
@@ -44,11 +44,11 @@ module.exports = [
             // Re-apply all local/* rules so they work inside Vue <script> blocks
             ...localRules,
 
-            // Re-apply TypeScript rules — typescript.config only matches *.ts/tsx,
+            // Re-apply TypeScript rules - typescript.config only matches *.ts/tsx,
             // so they must be explicitly repeated here for <script lang="ts"> blocks.
             ...tsRules,
 
-            // vue/script-indent handles indentation inside .vue files — disable the base rule
+            // vue/script-indent handles indentation inside .vue files - disable the base rule
             indent: "off",
 
             // Allow console in Vue files

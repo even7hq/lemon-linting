@@ -70,9 +70,9 @@ module.exports = {
 
                     const actualIndent = line.length - trimmed.length;
 
-                    // Count closers (end, until) — each pops one level.
-                    // Count re-openers (else, elseif) — pop then push.
-                    // Count openers (function, do, then, repeat) — each pushes one level.
+                    // Count closers (end, until) - each pops one level.
+                    // Count re-openers (else, elseif) - pop then push.
+                    // Count openers (function, do, then, repeat) - each pushes one level.
                     const closers = (stripped.match(/\bend\b|\buntil\b/g) || []).length;
                     const reopeners = (stripped.match(/\belse\b|\belseif\b/g) || []).length;
                     const openers = (stripped.match(/\bfunction\b|\bdo\b|\bthen\b|\brepeat\b/g) || []).length;

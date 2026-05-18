@@ -5,7 +5,7 @@
  *   1. A blank line BEFORE the comment (unless it's the first thing in a block)
  *   2. A blank line AFTER the node the comment documents (unless it's the last thing in a block)
  *
- * The comment and the node it documents are treated as a unit — no blank line
+ * The comment and the node it documents are treated as a unit - no blank line
  * is required between the `*\/` and the decorated/declared node itself.
  */
 
@@ -100,7 +100,7 @@ module.exports = {
                 tokenAfter.value.startsWith("</");
 
             // Skip when the next sibling is an overload signature of the same function/method.
-            // Overloads share the same name and sit consecutively — no blank line needed between them.
+            // Overloads share the same name and sit consecutively - no blank line needed between them.
             const nextSibling = (() => {
                 const parent = node.parent;
 

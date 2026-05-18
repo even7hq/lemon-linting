@@ -1,7 +1,7 @@
 /**
  * Merges one or more lemon-linting flat config arrays with project-specific additions.
  *
- * In ESLint flat config, composition is just array spreading — no special merge logic needed.
+ * In ESLint flat config, composition is just array spreading - no special merge logic needed.
  * Each element of the array is a config object applied in order.
  *
  * @param {string | string[]} configs - One or more config module paths (e.g. "@lemon/linting/backend.config").

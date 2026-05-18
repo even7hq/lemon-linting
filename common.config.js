@@ -53,7 +53,7 @@ const config = [
             // 4-space indentation
             indent: ["warn", 4, { SwitchCase: 1 }],
 
-            // Comments must be on their own line — not inline after statements
+            // Comments must be on their own line - not inline after statements
             "no-inline-comments": "warn",
 
             // Only double quotes
@@ -69,7 +69,7 @@ const config = [
             "no-async-promise-executor": "error",
 
             // Objects need to have a newline
-            // Only enforce consistency — never force newlines based on property count.
+            // Only enforce consistency - never force newlines based on property count.
             // The ESLint indent rule does not correctly re-indent objects that are broken
             // by object-curly-newline when they appear as function call arguments,
             // producing col-0 closing braces after autofix.
@@ -111,7 +111,7 @@ const config = [
             // Enforce spaces after keywords
             "keyword-spacing": "error",
 
-            // Disabled — local/remove-unused-vars handles this with autofix
+            // Disabled - local/remove-unused-vars handles this with autofix
             "no-unused-vars": "off",
 
             // Autofixable: removes unused imports
@@ -126,7 +126,7 @@ const config = [
             // Conflicts with namespaces
             "no-inner-declarations": "off",
 
-            // Import order — pathGroups pins workspace/alias imports so the order never flips
+            // Import order - pathGroups pins workspace/alias imports so the order never flips
             "import/order": [
                 "warn",
                 {

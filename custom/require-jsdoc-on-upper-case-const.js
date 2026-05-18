@@ -14,7 +14,7 @@ module.exports = {
     create(context) {
         const sourceCode = context.sourceCode;
 
-        /** HTTP verb names exported as route handlers — no JSDoc needed. */
+        /** HTTP verb names exported as route handlers - no JSDoc needed. */
         const HTTP_VERBS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
 
         function isUpperCase(name) {
@@ -81,7 +81,7 @@ module.exports = {
         /**
          * Builds a JSDoc block from an array of `//` line comments.
          *
-         * The replacement range starts at the first `//` token — the leading
+         * The replacement range starts at the first `//` token - the leading
          * whitespace before it is already in the source and is NOT replaced,
          * so we must NOT repeat it in the generated text.
          */
@@ -89,7 +89,7 @@ module.exports = {
             const indent = " ".repeat(lineComments[0].loc.start.column);
             const lines = lineComments.map((c) => `${indent} * ${c.value.trimStart()}`);
 
-            // No leading indent on the opening `/**` — the existing source
+            // No leading indent on the opening `/**` - the existing source
             // whitespace before the first `//` is preserved by the fixer.
             return `/**\n${lines.join("\n")}\n${indent} */`;
         }

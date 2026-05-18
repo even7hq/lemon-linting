@@ -22,7 +22,7 @@ module.exports = {
             }
 
             // Only treat as a "block" expression when it stands alone among JSX
-            // children — i.e. the parent has no JSXText siblings with real content
+            // children - i.e. the parent has no JSXText siblings with real content
             // on the same line. This excludes inline ternaries like:
             //   <Typography>{x > 0 ? x : "?"} suffix</Typography>
             const parent = node.parent;
@@ -44,7 +44,7 @@ module.exports = {
                 return true;
             }
 
-            // Only standalone ternaries — not ones mixed with surrounding text.
+            // Only standalone ternaries - not ones mixed with surrounding text.
             if (expr.type === "ConditionalExpression") {
                 return true;
             }

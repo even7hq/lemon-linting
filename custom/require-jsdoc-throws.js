@@ -3,7 +3,7 @@
  * direct (non-nested) `throw` statement.
  *
  * "Direct" means the throw is in the function's own body, not inside a nested
- * function expression or arrow function — those are considered separate units.
+ * function expression or arrow function - those are considered separate units.
  *
  * The autofix inserts one `@throws {{@link Type}}` line per unique thrown type,
  * just before the closing `*\/` of the JSDoc comment.
@@ -13,7 +13,7 @@
  *   throw new ns.Foo(...)       → {@link ns.Foo}
  *   throw Errors.bar()          → {@link Errors.bar}
  *   throw someVar               → {@link someVar}
- *   throw err / throw e         → (rethrow — skipped, no tag added)
+ *   throw err / throw e         → (rethrow - skipped, no tag added)
  */
 
 /** @type {import("eslint").Rule.RuleModule} */
@@ -92,12 +92,12 @@ module.exports = {
                 return getMemberName(throwArgument.callee);
             }
 
-            // throw Errors.bar() — static factory method call
+            // throw Errors.bar() - static factory method call
             if (throwArgument.type === "CallExpression") {
                 return getMemberName(throwArgument.callee);
             }
 
-            // throw someIdentifier — could be a re-throw (e, err, error, ex, cause)
+            // throw someIdentifier - could be a re-throw (e, err, error, ex, cause)
             if (throwArgument.type === "Identifier") {
                 const RETHROW_NAMES = new Set(["e", "err", "error", "ex", "cause", "reason"]);
 
@@ -242,7 +242,7 @@ module.exports = {
                     // The line prefix for tag lines (e.g. " * " for standard JSDoc).
                     const linePrefix = `${closingIndent}* `;
 
-                    // Build new tag lines — each on its own line, ending with a newline
+                    // Build new tag lines - each on its own line, ending with a newline
                     // so the closing "*/" stays on its own line.
                     const tagLines = tagsToInsert
                         .map((tag) => `${linePrefix}${tag}`)

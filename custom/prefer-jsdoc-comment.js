@@ -61,7 +61,7 @@ module.exports = {
                 return;
             }
 
-            // Only apply at module scope — not inside functions, classes or blocks
+            // Only apply at module scope - not inside functions, classes or blocks
             const ancestors = sourceCode.getAncestors(node);
             const isModuleLevel = ancestors.every((a) =>
                 a.type === "Program" ||
