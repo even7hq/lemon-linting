@@ -99,10 +99,11 @@ module.exports = [
             // These rules have autofixes that conflict with svelte/indent inside
             // <script> blocks — their fixes insert/remove braces and newlines but
             // don't account for Svelte's indentation expectations, corrupting the file.
-            // Kept as reportable but with fixable disabled via severity downgrade to off.
             curly: "off",
             "brace-style": "off",
-            "nonblock-statement-body-position": "off"
+            "nonblock-statement-body-position": "off",
+
+            "local/prefer-else-newline-if": "warn"
         }
     }
 ];
