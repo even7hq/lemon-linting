@@ -104,10 +104,60 @@ module.exports = {
                             return;
                         }
 
+                        // Check if the variable is part of a destructuring pattern.
+                        // In that case, remove only the specific property from the pattern,
+                        // not the entire declarator or declaration.
+                        const pattern = declarator.id;
+                        const isDestructured =
+                            pattern &&
+                            (pattern.type === "ObjectPattern" || pattern.type === "ArrayPattern");
+
                         context.report({
                             node: idNode,
                             message: `'${name}' is assigned a value but never used.`,
                             fix(fixer) {
+                                if (isDestructured && pattern.type === "ObjectPattern") {
+                                    // Find the specific property in the destructuring pattern.
+                                    const prop = pattern.properties.find((p) => {
+                                        if (p.type === "RestElement") return false;
+                                        const val = p.value;
+
+                                        return (
+                                            (val && val.type === "Identifier" && val.name === name) ||
+                                            (val && val.type === "AssignmentPattern" && val.left.type === "Identifier" && val.left.name === name) ||
+                                            (p.shorthand && p.key && p.key.name === name)
+                                        );
+                                    });
+
+                                    if (!prop) return null;
+
+                                    // If it's the only property, remove the whole declaration.
+                                    if (pattern.properties.length === 1) {
+                                        return removeDeclaration(fixer, declaration);
+                                    }
+
+                                    // Otherwise remove just this property (and its trailing/leading comma).
+                                    const propIdx = pattern.properties.indexOf(prop);
+                                    const isLast = propIdx === pattern.properties.length - 1;
+                                    const tokenAfter = sourceCode.getTokenAfter(prop);
+                                    const tokenBefore = sourceCode.getTokenBefore(prop);
+
+                                    if (isLast && tokenBefore && tokenBefore.value === ",") {
+                                        // Remove the preceding comma and the property.
+                                        return fixer.removeRange([tokenBefore.range[0], prop.range[1]]);
+                                    }
+
+                                    if (!isLast && tokenAfter && tokenAfter.value === ",") {
+                                        // Remove the property and the following comma (and any whitespace).
+                                        const nextToken = sourceCode.getTokenAfter(tokenAfter);
+                                        const endPos = nextToken ? nextToken.range[0] : tokenAfter.range[1];
+
+                                        return fixer.removeRange([prop.range[0], endPos]);
+                                    }
+
+                                    return fixer.remove(prop);
+                                }
+
                                 if (declaration.declarations.length === 1) {
                                     return removeDeclaration(fixer, declaration);
                                 }
