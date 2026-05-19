@@ -177,6 +177,21 @@ module.exports = {
 
                     const declNode = defNode;
 
+                    // Skip type parameters used in mapped types: `[S in Stage]` —
+                    // `S` is a type parameter of TSMappedType, not an unused declaration.
+                    if (
+                        declNode.type === "TSTypeParameter" &&
+                        declNode.parent?.type === "TSMappedType"
+                    ) {
+                        return;
+                    }
+
+                    // Skip any type parameter (generic) — they are always "used" implicitly
+                    // by the type system even when ESLint's scope analysis can't see the usage.
+                    if (declNode.type === "TSTypeParameter") {
+                        return;
+                    }
+
                     if (isExported(declNode)) {
                         return;
                     }
