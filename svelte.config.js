@@ -97,7 +97,7 @@ module.exports = [
             "@typescript-eslint/no-explicit-any": "off",
 
             // These rules have autofixes that conflict with svelte/indent inside
-            // <script> blocks — their fixes insert/remove braces and newlines but
+            // <script> blocks - their fixes insert/remove braces and newlines but
             // don't account for Svelte's indentation expectations, corrupting the file.
             curly: "off",
             "brace-style": "off",
