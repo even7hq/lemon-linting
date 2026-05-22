@@ -31,9 +31,9 @@ module.exports = {
 
         /**
          * Matches a single-line block:
-         *   group 1 – leading indent
-         *   group 2 – keyword + condition + opening word (then|do)
-         *   group 3 – body (everything between opener and `end`)
+         *   group 1 - leading indent
+         *   group 2 - keyword + condition + opening word (then|do)
+         *   group 3 - body (everything between opener and `end`)
          *
          * Deliberately does NOT match `elseif … then … end` on its own
          * because elseif is always part of a larger if-block.
