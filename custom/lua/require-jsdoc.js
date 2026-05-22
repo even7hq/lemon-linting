@@ -13,36 +13,53 @@ module.exports = {
     create(context) {
         const sourceCode = context.sourceCode;
 
-        function getDocBlock(node) {
-            const comments = sourceCode.getCommentsBefore(node);
-            if (!comments.length) return null;
+        /**
+         * Returns the doc block immediately above a function declaration by
+         * scanning source text lines directly — the Lua parser does not populate
+         * node.loc reliably, so we cannot use getCommentsBefore() which would
+         * return every comment in the file above the (always-line-1) node.
+         *
+         * A doc block is a consecutive run of `--` / `---` lines directly above
+         * the `function` keyword that contains at least one @tag.
+         */
+        function getDocBlockFromSource(node) {
+            // node.range[0] is the character offset of `function` in the source.
+            if (!node.range) return null;
 
-            // Collect the unbroken run of Line comments immediately before the node.
+            const text = sourceCode.getText();
+            const funcStart = node.range[0];
+
+            // Find the line number of the function by counting newlines before it.
+            const before = text.slice(0, funcStart);
+            const funcLine = (before.match(/\n/g) || []).length; // 0-based
+
+            const lines = text.split("\n");
             const block = [];
 
-            for (let i = comments.length - 1; i >= 0; i--) {
-                const c = comments[i];
+            // Walk backwards from the line above the function.
+            for (let i = funcLine - 1; i >= 0; i--) {
+                const trimmed = lines[i].trim();
 
-                if (c.type !== "Line") break;
+                if (trimmed === "") break;
+                if (!trimmed.startsWith("--")) break;
 
-                block.unshift(c);
+                block.unshift({ raw: trimmed, lineIndex: i });
             }
 
             if (!block.length) return null;
 
-            // Only treat as a doc block when it contains at least one @tag.
-            const hasTag = block.some((c) => /@param\b|@returns?\b|@throws?\b/.test(c.raw));
+            const hasTag = block.some((l) => /@param\b|@returns?\b|@throws?\b/.test(l.raw));
 
             if (!hasTag) return null;
 
-            return block;
+            return block.map((l) => l.raw).join("\n");
         }
 
-        function checkFunction(node, block) {
-            if (!block) return;
+        function checkFunction(node) {
+            const combined = getDocBlockFromSource(node);
 
-            // Merge all comment raws into a single string for tag searching.
-            const combined = block.map((c) => c.raw).join("\n");
+            if (!combined) return;
+
             const params = node.params ?? [];
 
             for (const param of params) {
@@ -67,13 +84,7 @@ module.exports = {
         }
 
         return {
-            LuaFunctionDeclaration(node) {
-                const block = getDocBlock(node);
-
-                if (block) {
-                    checkFunction(node, block);
-                }
-            }
+            LuaFunctionDeclaration: checkFunction
         };
     }
 };
