@@ -135,11 +135,36 @@ module.exports = {
             }
         }
 
+        function isInsideVueComputedOption(node) {
+            // FunctionExpression → Property (the computed fn) → ObjectExpression → Property (key: "computed") 
+            const prop = node.parent;
+
+            if (prop?.type !== "Property") return false;
+
+            const obj = prop.parent;
+
+            if (obj?.type !== "ObjectExpression") return false;
+
+            const computedProp = obj.parent;
+
+            if (computedProp?.type !== "Property") return false;
+
+            const key = computedProp.key;
+
+            return key?.type === "Identifier" && key.name === "computed";
+        }
+
         function handleFunction(node) {
             const parent = node.parent;
 
             // Getters and setters don't need @returns/@param - the type annotation is enough
             if (parent?.type === "MethodDefinition" && (parent.kind === "get" || parent.kind === "set")) {
+                return;
+            }
+
+            // Vue Options API computed properties don't need @returns — they are
+            // conceptually getters, not regular functions.
+            if (isInsideVueComputedOption(node)) {
                 return;
             }
 
