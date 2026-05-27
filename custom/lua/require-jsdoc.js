@@ -55,6 +55,23 @@ module.exports = {
             return block.map((l) => l.raw).join("\n");
         }
 
+        /**
+         * Returns true when the function body contains at least one `return <value>`
+         * statement (bare `return` with no value does not count).
+         */
+        function functionHasReturnValue(node) {
+            if (!node.range) return false;
+
+            const text = sourceCode.getText();
+            const bodyStart = node.range[0];
+            const bodyEnd = node.range[1];
+            const body = text.slice(bodyStart, bodyEnd);
+
+            // Match `return` followed by something other than end-of-statement.
+            // Excludes bare `return` (followed by newline, `end`, or nothing).
+            return /\breturn\s+(?!end\b)[\w"'({-]/.test(body);
+        }
+
         function checkFunction(node) {
             const combined = getDocBlockFromSource(node);
 
@@ -75,7 +92,7 @@ module.exports = {
                 }
             }
 
-            if (!/@returns?\b/.test(combined)) {
+            if (!/@returns?\b/.test(combined) && functionHasReturnValue(node)) {
                 context.report({
                     node,
                     message: "Missing @return tag for documented function."
