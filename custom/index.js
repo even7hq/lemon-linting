@@ -16,6 +16,7 @@ module.exports = {
         "max-inline-calls": require("./max-inline-calls"),
         "require-blank-lines-around-jsdoc": require("./require-blank-lines-around-jsdoc"),
         "require-jsdoc-throws": require("./require-jsdoc-throws"),
-        "no-inline-type-import": require("./no-inline-type-import")
+        "no-inline-type-import": require("./no-inline-type-import"),
+        "no-jsdoc-tag-format": require("./no-jsdoc-tag-format")
     }
 };

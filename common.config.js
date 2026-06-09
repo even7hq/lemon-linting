@@ -26,7 +26,8 @@ const localRules = {
     "local/no-await-import": "warn",
     "local/require-blank-lines-around-jsdoc": "warn",
     "local/require-jsdoc-throws": "warn",
-    "local/no-inline-type-import": "warn"
+    "local/no-inline-type-import": "warn",
+    "local/no-jsdoc-tag-format": "warn"
 };
 
 /** @type {import("eslint").Linter.Config[]} */
