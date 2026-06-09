@@ -112,7 +112,12 @@ const tsRules = {
     // Disable the base rule - it does not understand TS overloads and flags
     // every overload signature as a redeclaration.
     "no-redeclare": "off",
-    "@typescript-eslint/no-redeclare": "error",
+    "@typescript-eslint/no-redeclare": ["error", { ignoreDeclarationMerge: true }],
+
+    // Disable the base rule - it does not understand TS overload signatures and
+    // flags them as duplicate class members.
+    "no-dupe-class-members": "off",
+    "@typescript-eslint/no-dupe-class-members": "error",
 
     // Enforce `import type` when the import is only used as a type.
     "@typescript-eslint/consistent-type-imports": ["warn", {
