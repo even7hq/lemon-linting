@@ -47,11 +47,9 @@ module.exports = {
                                 return null;
                             }
 
-                            const commentText = sourceCode.getText().slice(comment.range[0], comment.range[1]);
-                            const opening = commentText.startsWith("/**") ? "/**" : "/*";
-                            const replacement = `${opening}${normalized}*/`;
-
-                            return fixer.replaceTextRange(comment.range, replacement);
+                            // comment.value already includes the leading `*` of `/**`; prepending
+                            // `/**` again would produce `/***`.
+                            return fixer.replaceTextRange(comment.range, `/*${normalized}*/`);
                         }
                     });
                 }
