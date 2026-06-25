@@ -72,6 +72,16 @@ module.exports = {
             return /\breturn\s+(?!end\b)[\w"'({-]/.test(body);
         }
 
+        /**
+         * Returns true when a parameter name is a conventional unused placeholder.
+         *
+         * @param name Lua parameter identifier.
+         * @returns True when @param documentation is not required.
+         */
+        function isIgnoredParamName(name) {
+            return /^_{1,3}$/.test(name);
+        }
+
         function checkFunction(node) {
             const combined = getDocBlockFromSource(node);
 
@@ -82,6 +92,10 @@ module.exports = {
             for (const param of params) {
                 if (param.type === "Identifier") {
                     const name = param.name;
+
+                    if (isIgnoredParamName(name)) {
+                        continue;
+                    }
 
                     if (!new RegExp(`@param\\s+${name}\\b`).test(combined)) {
                         context.report({
