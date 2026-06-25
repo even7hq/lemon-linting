@@ -1,4 +1,6 @@
-/** @type {import("eslint").Rule.RuleModule} */
+/**
+ * @type {import("eslint").Rule.RuleModule}
+ */
 module.exports = {
     meta: {
         type: "suggestion",
@@ -7,6 +9,7 @@ module.exports = {
             category: "Variables",
             recommended: true
         },
+
         fixable: "code",
         schema: [
             {
@@ -15,6 +18,7 @@ module.exports = {
                     varsIgnorePattern: { type: "string" },
                     argsIgnorePattern: { type: "string" }
                 },
+
                 additionalProperties: false
             }
         ]
@@ -32,6 +36,31 @@ module.exports = {
                 parent &&
                 (parent.type === "ExportNamedDeclaration" ||
                     parent.type === "ExportDefaultDeclaration")
+            );
+        }
+
+        /**
+         * Returns true when the scope entry is the key name of a mapped type (`[K in T]`).
+         *
+         * @param declNode ESLint definition node.
+         * @param def ESLint variable definition metadata.
+         * @returns True when the name is a mapped-type iterator, not a real unused enum.
+         */
+        function isMappedTypeKeyParameter(declNode, def) {
+            if (def.type !== "Type" && def.type !== "TSEnumName") {
+                return false;
+            }
+
+            if (declNode.type === "TSTypeParameter" && declNode.parent?.type === "TSMappedType") {
+                return true;
+            }
+
+            const nameNode = declNode.type === "Identifier" ? declNode : def.name;
+
+            return (
+                nameNode?.type === "Identifier" &&
+                nameNode.parent?.type === "TSTypeParameter" &&
+                nameNode.parent.parent?.type === "TSMappedType"
             );
         }
 
@@ -176,6 +205,10 @@ module.exports = {
                     }
 
                     const declNode = defNode;
+
+                    if (isMappedTypeKeyParameter(declNode, def)) {
+                        return;
+                    }
 
                     // Skip type parameters used in mapped types: `[S in Stage]` -
                     // `S` is a type parameter of TSMappedType, not an unused declaration.
