@@ -3,7 +3,7 @@
   "version": "1.0.4",
   "main": "index.js",
   "license": "UNLICENSED",
-  "author": "Matheus Giovani <matheus+devambient@even7.com.br>",
+  "author": "Gio Pavanelli <gio+devambient@even7.com.br>",
   "repository": "https://github.com/even7hq/luckymaker-linting",
   "exports": {
     ".": "./index.js",
