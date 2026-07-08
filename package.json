@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "author": "Gio Pavanelli <gio+devambient@even7.com.br>",
-  "repository": "https://github.com/even7hq/luckymaker-linting",
+  "repository": "https://github.com/even7hq/lemon-linting",
   "exports": {
     ".": "./index.js",
     "./ts-parser-path": "./ts-parser-path.js",
