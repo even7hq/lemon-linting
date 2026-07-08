@@ -13,6 +13,7 @@
 [![React](https://img.shields.io/badge/Frontend-React-61DAFB.svg)](#)
 [![Svelte 5](https://img.shields.io/badge/Frontend-Svelte%205-FF3E00.svg)](#)
 [![Lua](https://img.shields.io/badge/Scripts-Lua-purple.svg)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#licença)
 
 [Começar](#começar) • [Funcionalidades](#funcionalidades) • [Opinionado](#opinionado-de-propósito) • [Arquitetura](#arquitetura) • [Desenvolvimento](#desenvolvimento) • [Contribuir](#contribuindo)
 
@@ -402,7 +403,7 @@ Antes de abrir PR:
 
 ## Licença
 
-Uso interno Even7 (`UNLICENSED`). Entre em contato com a equipe antes de redistribuir fora da organização.
+[MIT](./LICENSE) - Copyright (c) Even7. Veja o arquivo [LICENSE](./LICENSE) para o texto completo.
 
 ---
 

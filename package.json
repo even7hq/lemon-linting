@@ -2,7 +2,7 @@
   "name": "@lemon/linting",
   "version": "1.0.4",
   "main": "index.js",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "author": "Gio Pavanelli <gio+devambient@even7.com.br>",
   "repository": "https://github.com/even7hq/luckymaker-linting",
   "exports": {
