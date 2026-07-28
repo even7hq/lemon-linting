@@ -4,7 +4,7 @@
 
 > **Code like Even!**
 
-**Configuração ESLint opinionada da Even7 - flat config (ESLint 9), regras customizadas, presets por stack e parsers próprios para Vue 2, React, Svelte, TypeScript e Lua.**
+**Configuração ESLint opinionada da Even7 - flat config (ESLint 9), regras customizadas, presets por stack e parsers próprios para Vue 2, React, Svelte, TypeScript, Lua e Zig.**
 
 [![ESLint 9](https://img.shields.io/badge/ESLint-9-blue.svg)](#)
 [![Flat Config](https://img.shields.io/badge/Config-Flat%20Config-black.svg)](#)
@@ -13,6 +13,7 @@
 [![React](https://img.shields.io/badge/Frontend-React-61DAFB.svg)](#)
 [![Svelte 5](https://img.shields.io/badge/Frontend-Svelte%205-FF3E00.svg)](#)
 [![Lua](https://img.shields.io/badge/Scripts-Lua-purple.svg)](#)
+[![Zig](https://img.shields.io/badge/Scripts-Zig-orange.svg)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#licença)
 
 [Começar](#começar) • [Funcionalidades](#funcionalidades) • [Opinionado](#opinionado-de-propósito) • [Arquitetura](#arquitetura) • [Desenvolvimento](#desenvolvimento) • [Contribuir](#contribuindo)
@@ -40,7 +41,7 @@ Repositório: [github.com/even7hq/lemon-linting](https://github.com/even7hq/lemo
               |               |               |
               v               v               v
      [ common.config ] [ typescript.config ] [ preset da stack ]
-              |               |          (vue / react / svelte / lua)
+              |               |          (vue / react / svelte / lua / zig)
               |               |
               v               v
         [ custom/local/* ]  [ @typescript-eslint ]
@@ -62,6 +63,7 @@ Repositório: [github.com/even7hq/lemon-linting](https://github.com/even7hq/lemo
 - **Preset React:** JSX/TSX com regras extras de newline entre expressões e elementos filhos.
 - **Preset Svelte 5:** `eslint-plugin-svelte` com TypeScript em `<script lang="ts">` e regras de template/indentação Svelte-specific.
 - **Preset Lua:** parser customizado (`luaparse`) com regras próprias para scripts e configs em Lua.
+- **Preset Zig:** parser stub + regras Even7 text-based + bridge para **zlint** (`--format json`) no editor/CI.
 - **`defineConfig`:** helper para compor presets + overrides locais sem boilerplate.
 - **ESLint bundled:** binário do ESLint já vem como dependência - versões alinhadas entre repos.
 - **Parsers utilitários:** `ts-parser-path` (caminho resolvido do parser TS), `noop-parser` (blocos Lua em `.vue`), `lua-parser` (lint de `.lua`).
@@ -124,6 +126,7 @@ Crie `eslint.config.js` na raiz e escolha o preset da sua stack:
 | React + TypeScript | `@lemon/linting/react.config` |
 | Svelte 5 | `@lemon/linting/svelte.config` |
 | Lua | `@lemon/linting/lua.config` |
+| Zig | `@lemon/linting/zig.config` |
 | Só TypeScript | `@lemon/linting/typescript.config` |
 | Só JavaScript base | `@lemon/linting/common.config` |
 
@@ -197,6 +200,26 @@ module.exports = [
 ];
 ```
 
+**Zig:**
+
+```js
+const { defineConfig } = require("@lemon/linting/define.config");
+
+module.exports = defineConfig("@lemon/linting/zig.config", [
+    {
+        ignores: ["node_modules/**", "**/.zig-cache/**", "**/zig-out/**"]
+    }
+]);
+```
+
+Instale o binário **zlint** (análise semântica Zig) e opcionalmente defina `ZLINT_PATH`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DonIsaac/zlint/refs/heads/main/tasks/install.sh | bash
+```
+
+Crie `zlint.json` ao lado de `build.zig` no projeto Zig.
+
 **Com overrides locais (`defineConfig`):**
 
 ```js
@@ -268,6 +291,7 @@ O pacote é organizado em camadas composáveis:
 | `react.config.js` | `common` + `typescript` + regras JSX (`local/jsx-*`) |
 | `svelte.config.js` | Svelte recommended + TypeScript em `<script>` + indent Svelte |
 | `lua.config.js` | Parser Lua + plugin `lua/*` com regras de documentação e blocos |
+| `zig.config.js` | Parser Zig stub + plugin `zig/*` (Even7) + bridge `zig/run-zlint` |
 | `define.config.js` | Helper `defineConfig()` para merge de presets |
 | `custom/` | Plugin ESLint com regras `local/*` e `lua/*` |
 | `parsers/` | `lua-parser`, `noop-parser` para casos especiais |
@@ -285,6 +309,7 @@ O pacote é organizado em camadas composáveis:
 | `@lemon/linting/react.config` | React |
 | `@lemon/linting/svelte.config` | Svelte 5 |
 | `@lemon/linting/lua.config` | Lua |
+| `@lemon/linting/zig.config` | Zig |
 | `@lemon/linting/define.config` | Helper de composição |
 | `@lemon/linting/ts-parser-path` | Caminho do parser TypeScript |
 | `@lemon/linting/custom` | Plugin de regras locais |
@@ -330,6 +355,14 @@ Plugin interno em [`custom/`](./custom/):
 - `lua/consistent-doc-prefix` - prefixo consistente na doc
 - `lua/no-param-dash-separator` - separador de params na doc
 
+**Zig (`zig/*`)**
+
+- `zig/no-multi-spaces` - sem padding de alinhamento antes de `=`
+- `zig/blank-line-before-block` - linha em branco antes de blocos
+- `zig/require-doc` - `pub fn` documentado com `///` e tags
+- `zig/no-doc-dash-separator` - sem `-` entre tipo e descrição em tags doc
+- `zig/run-zlint` - executa zlint e repassa diagnósticos ao ESLint
+
 **Opcionais (ativar manualmente no projeto)**
 
 - `local/prevent-invalid-sanitization-regexp` - regexp de sanitização inválida
@@ -357,6 +390,13 @@ yarn eslint test/lua/all_rules.lua --config lua.config.js
 yarn eslint test/lua/padding.lua --config lua.config.js
 ```
 
+Testar regras Zig (fixtures + parser da bridge):
+
+```bash
+yarn test:zig
+yarn eslint test/zig/bad_*.zig --config zig.config.js
+```
+
 Validar um preset contra um projeto consumidor:
 
 ```bash
@@ -382,6 +422,8 @@ yarn eslint src/ --config eslint.config.js
 | `eslint-plugin-import-x` | Ordem e resolução de imports |
 | `eslint-plugin-unused-imports` | Remove imports não usados |
 | `luaparse` | AST para o parser Lua |
+
+Zig usa regras text-based no ESLint e delega análise semântica ao binário **zlint** (instalado separadamente).
 
 ---
 

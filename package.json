@@ -16,10 +16,14 @@
     "./svelte.config": "./svelte.config.js",
     "./define.config": "./define.config.js",
     "./lua.config": "./lua.config.js",
+    "./zig.config": "./zig.config.js",
     "./custom": "./custom/index.js"
   },
   "bin": {
     "eslint": "./node_modules/.bin/eslint"
+  },
+  "scripts": {
+    "test:zig": "node test/zig/run-zlint.test.js"
   },
   "dependencies": {
     "@eslint/js": "^9.39.4",
