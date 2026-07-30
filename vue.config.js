@@ -44,6 +44,8 @@ module.exports = [
             // Re-apply all local/* rules so they work inside Vue <script> blocks
             ...localRules,
 
+            "local/vue-no-style-block": "error",
+
             // Re-apply TypeScript rules - typescript.config only matches *.ts/tsx,
             // so they must be explicitly repeated here for <script lang="ts"> blocks.
             ...tsRules,

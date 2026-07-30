@@ -23,7 +23,11 @@ const localRules = {
     "local/require-jsdoc-on-upper-case-const": "warn",
     "local/prefer-jsdoc-comment": "warn",
     "local/blank-line-after-block-prop": "warn",
-    "local/no-await-import": "warn",
+    "local/no-await-import": "error",
+    "local/no-em-dash": "error",
+    "local/no-reexport-stub": "error",
+    "local/no-empty-catch": "error",
+    "local/pt-br-accents": "error",
     "local/require-blank-lines-around-jsdoc": "warn",
     "local/require-jsdoc-throws": "warn",
     "local/no-inline-type-import": "warn",
@@ -120,6 +124,9 @@ const config = [
 
             // Autofixable: removes unused variable/type/interface/enum declarations
             ...localRules,
+
+            // Max file size (rule: max-file-size)
+            "max-lines": ["error", { max: 700, skipBlankLines: true, skipComments: true }],
 
             // Allow extra boolean casting
             "no-extra-boolean-cast": "off",

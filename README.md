@@ -310,6 +310,7 @@ O pacote é organizado em camadas composáveis:
 | `@lemon/linting/svelte.config` | Svelte 5 |
 | `@lemon/linting/lua.config` | Lua |
 | `@lemon/linting/zig.config` | Zig |
+| `@lemon/linting/sql.config` | SQL fixtures |
 | `@lemon/linting/define.config` | Helper de composição |
 | `@lemon/linting/ts-parser-path` | Caminho do parser TypeScript |
 | `@lemon/linting/custom` | Plugin de regras locais |
@@ -332,8 +333,23 @@ Plugin interno em [`custom/`](./custom/):
 **Imports e variáveis**
 
 - `local/remove-unused-vars` - remove vars/types/interfaces/enums não usados (autofix)
-- `local/no-await-import` - proíbe `await import()` dinâmico
+- `local/no-await-import` - proíbe `await import()` dinâmico (**error**)
 - `local/no-inline-type-import` - proíbe `import { type X }` inline
+
+**Workspace enforcement (Cursor stop gate)**
+
+- `local/no-em-dash` - proíbe travessão tipográfico U+2014
+- `local/no-reexport-stub` - proíbe arquivo só com `export ... from`
+- `local/no-unsafe-type-assertion` - proíbe `as any` / `as unknown`
+- `local/no-catch-any` - proíbe `catch (err: any)`
+- `local/no-empty-catch` - proíbe catch vazio
+- `local/pt-br-accents` - acentuação PT em strings
+- `local/vue-no-style-block` - proíbe `<style>` em Vue SFC
+- `local/no-form-data-consumer` - proíbe `FormDataConsumer` no admin
+- `local/no-sql-placeholder-fk` - proíbe `*Id = 1` em SQL
+- `max-lines` (700) - tamanho máximo de arquivo
+
+Testes: `yarn test` na raiz do pacote.
 
 **Legibilidade**
 

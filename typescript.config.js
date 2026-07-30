@@ -10,8 +10,11 @@ const tsParser = require("@typescript-eslint/parser");
  * @type {Record<string, import("eslint").Linter.RuleEntry>}
  */
 const tsRules = {
-    // Allow explicit any
+    // Allow explicit any in type annotations - casts are banned via local/no-unsafe-type-assertion
     "@typescript-eslint/no-explicit-any": "off",
+
+    "local/no-unsafe-type-assertion": "error",
+    "local/no-catch-any": "error",
 
     // Disabled - local/remove-unused-vars handles this with autofix
     "@typescript-eslint/no-unused-vars": "off",

@@ -1,10 +1,12 @@
 const commonConfig = require("./common.config");
 const typescriptConfig = require("./typescript.config");
+const sqlConfig = require("./sql.config");
 
 /** @type {import("eslint").Linter.Config[]} */
 module.exports = [
     ...commonConfig,
     ...typescriptConfig,
+    ...sqlConfig,
 
     {
         rules: {
