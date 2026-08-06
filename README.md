@@ -56,7 +56,7 @@ Repositório: [github.com/even7hq/lemon-linting](https://github.com/even7hq/lemo
 
 - **Flat config nativo:** ESLint 9+ com composição por array - sem `.eslintrc` legado.
 - **Opinionado e consistente:** 4 espaços, aspas duplas, sem trailing comma, `prefer-const`, ordem de imports alfabética com grupos para aliases `@/*`.
-- **TypeScript type-aware:** `@typescript-eslint` com `project: true`, naming conventions, `consistent-type-imports` e resolver para imports TypeScript.
+- **TypeScript type-aware:** `@typescript-eslint` com `project: true`, naming conventions, `consistent-type-imports`, `consistent-type-definitions` (prefer `interface`) e resolver para imports TypeScript.
 - **Plugin `local/*`:** dezenas de regras customizadas da Even7 para JSDoc, legibilidade, imports e JSX - com autofix onde faz sentido.
 - **Preset backend:** `common` + `typescript` otimizado para APIs, serviços e código Node.
 - **Preset Vue 2:** `vue-eslint-parser`, `flat/vue2-recommended`, `<script lang="ts">` e `<script server lang="lua">`, ordem de blocos/opções de componente, regras de template e indentação via `vue/script-indent`.
