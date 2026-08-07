@@ -130,9 +130,7 @@ const tsRules = {
     }],
 
     // Prefer `interface` over `type` for object shapes (unions, mapped types, etc. stay as `type`).
-    "@typescript-eslint/consistent-type-definitions": ["warn", {
-        prefer: "interface"
-    }]
+    "@typescript-eslint/consistent-type-definitions": ["warn", "interface"]
 };
 
 /**
