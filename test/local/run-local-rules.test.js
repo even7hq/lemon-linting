@@ -1,8 +1,10 @@
+/* eslint-disable no-console -- test runner output */
 const assert = require("node:assert/strict");
 const path = require("node:path");
 const { RuleTester } = require("eslint");
-const tsParser = require("@typescript-eslint/parser");
 const vueParser = require("vue-eslint-parser");
+const tsParser = require("@typescript-eslint/parser");
+const { shouldSuppressIndentReturnTypeClose } = require("../../custom/processors/FilterIndentReturnTypeClose.js");
 const noopParser = require("../../parsers/noop-parser");
 
 /**
@@ -10,6 +12,7 @@ const noopParser = require("../../parsers/noop-parser");
  *
  * @param {string} name Rule label.
  * @param {() => void} run RuleTester.run callback.
+ * @throws {Error} When the rule test fails.
  */
 function runRule(name, run) {
     try {
@@ -31,7 +34,8 @@ const rules = {
     "no-form-data-consumer": require("../../custom/no-form-data-consumer.js"),
     "no-sql-placeholder-fk": require("../../custom/no-sql-placeholder-fk.js"),
     "pt-br-accents": require("../../custom/pt-br-accents.js"),
-    "no-await-import": require("../../custom/no-await-import.js")
+    "no-await-import": require("../../custom/no-await-import.js"),
+    "remove-unused-vars": require("../../custom/remove-unused-vars.js")
 };
 
 const tsRuleTester = new RuleTester({
@@ -96,9 +100,10 @@ runRule("no-catch-any", () => {
 
 runRule("pt-br-accents", () => {
     tsRuleTester.run("pt-br-accents", rules["pt-br-accents"], {
-        valid: ['const s = "não encontrado";'],
+        valid: ["const s = \"não encontrado\";"],
         invalid: [{
-            code: 'const s = "nao encontrado";',
+            // eslint-disable-next-line local/pt-br-accents -- fixture: intentionally missing accents
+            code: "const s = \"nao encontrado\";",
             errors: [{ message: /accent/ }]
         }]
     });
@@ -110,6 +115,7 @@ runRule("no-reexport-stub", () => {
             code: "export { Foo } from \"./Foo\";",
             filename: path.join(__dirname, "../../index.ts")
         }],
+
         invalid: [{
             code: "export { Foo } from \"./Foo\";",
             filename: path.join(__dirname, "../../shim.ts"),
@@ -130,9 +136,9 @@ runRule("no-empty-catch", () => {
 
 runRule("no-em-dash", () => {
     tsRuleTester.run("no-em-dash", rules["no-em-dash"], {
-        valid: ['const s = "ok";'],
+        valid: ["const s = \"ok\";"],
         invalid: [{
-            code: 'const s = "a\u2014b";',
+            code: "const s = \"a\u2014b\";",
             errors: [{ message: /Em dash/ }]
         }]
     });
@@ -154,6 +160,7 @@ runRule("vue-no-style-block", () => {
             code: "<template><div /></template>",
             filename: "component.vue"
         }],
+
         invalid: [{
             code: "<template><div /></template><style scoped></style>",
             filename: "component.vue",
@@ -178,6 +185,7 @@ runRule("no-sql-placeholder-fk", () => {
             code: "UPDATE t SET matrixId = 42;",
             filename: "fixture.sql"
         }],
+
         invalid: [{
             code: "UPDATE t SET matrixId = 1;",
             filename: "fixture.sql",
@@ -186,7 +194,42 @@ runRule("no-sql-placeholder-fk", () => {
     });
 });
 
-const { shouldSuppressIndentReturnTypeClose } = require("../../custom/processors/FilterIndentReturnTypeClose.js");
+runRule("remove-unused-vars exported enum", () => {
+    tsRuleTester.run("remove-unused-vars", rules["remove-unused-vars"], {
+        valid: [
+            `export enum SulcrediNotificationType {
+                PIX_CHARGE = "PIX_CHARGE",
+                PIX_TRANSFER = "PIX_TRANSFER"
+            }
+
+            class Gateway {
+                private determineNotificationType(): SulcrediNotificationType | null {
+                    return SulcrediNotificationType.PIX_CHARGE;
+                }
+
+                private handle(notificationType: SulcrediNotificationType) {
+                    if (notificationType === SulcrediNotificationType.PIX_CHARGE) {
+                        return;
+                    }
+                }
+            }`,
+            `export enum UnusedPublicEnum {
+                A = "a"
+            }`
+        ],
+
+        invalid: [
+            {
+                code: `enum UnusedEnum {
+                    A = "a"
+                }`,
+
+                output: "",
+                errors: [{ message: /enum 'UnusedEnum' is declared but never used/ }]
+            }
+        ]
+    });
+});
 
 assert.equal(
     shouldSuppressIndentReturnTypeClose(

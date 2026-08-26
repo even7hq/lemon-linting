@@ -30,13 +30,20 @@ module.exports = {
         const ignorePattern = options.varsIgnorePattern ? new RegExp(options.varsIgnorePattern) : /^_/;
 
         function isExported(node) {
-            const parent = node.parent;
+            let current = node;
 
-            return (
-                parent &&
-                (parent.type === "ExportNamedDeclaration" ||
-                    parent.type === "ExportDefaultDeclaration")
-            );
+            while (current) {
+                if (
+                    current.type === "ExportNamedDeclaration" ||
+                    current.type === "ExportDefaultDeclaration"
+                ) {
+                    return true;
+                }
+
+                current = current.parent;
+            }
+
+            return false;
         }
 
         /**
@@ -95,6 +102,30 @@ module.exports = {
             const end = sourceCode.text.indexOf("\n", target.range[1]);
 
             return fixer.removeRange([target.range[0], end >= 0 ? end + 1 : target.range[1]]);
+        }
+
+        /**
+         * TypeScript enums (and some types) can register duplicate scope variables for the
+         * same name. One entry may hold all references while a sibling reports zero.
+         *
+         * @param {import("eslint").Scope.Scope} programScope
+         * @param {string} name
+         * @returns {boolean}
+         */
+        function isNameReadInProgram(programScope, name) {
+            let isRead = false;
+
+            walkScope(programScope, (variable) => {
+                if (variable.name !== name) {
+                    return;
+                }
+
+                if (variable.references.some((ref) => ref.isRead())) {
+                    isRead = true;
+                }
+            });
+
+            return isRead;
         }
 
         return {
@@ -201,6 +232,10 @@ module.exports = {
                     const isTsType = def.type === "Type" || def.type === "TSEnumName";
 
                     if (!isTsType) {
+                        return;
+                    }
+
+                    if (isNameReadInProgram(scope, name)) {
                         return;
                     }
 

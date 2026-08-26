@@ -31,10 +31,14 @@ function shouldSuppressIndentReturnTypeClose(message, sourceLine) {
     return expected > found;
 }
 
-/** @type {Map<string, string[]>} */
+/**
+ * @type {Map<string, string[]>}
+ */
 const sourceLinesByFilename = new Map();
 
-/** @type {import("eslint").Linter.Processor} */
+/**
+ * @type {import("eslint").Linter.Processor}
+ */
 const processor = {
     meta: {
         name: "filter-indent-return-type-close",
