@@ -167,6 +167,11 @@ module.exports = [
     },
 
     {
+        files: ["**/*.ts", "**/*.tsx"],
+        processor: "local/filter-indent-return-type-close"
+    },
+
+    {
         // padding-line-between-statements only for .ts - JSX/TSX files have mixed
         // statement/expression contexts that cause autofix to corrupt indentation.
         files: ["**/*.ts"],

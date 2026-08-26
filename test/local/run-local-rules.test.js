@@ -186,4 +186,30 @@ runRule("no-sql-placeholder-fk", () => {
     });
 });
 
+const { shouldSuppressIndentReturnTypeClose } = require("../../custom/processors/FilterIndentReturnTypeClose.js");
+
+assert.equal(
+    shouldSuppressIndentReturnTypeClose(
+        {
+            ruleId: "indent",
+            messageId: "wrongIndentation",
+            message: "Expected indentation of 8 spaces but found 4."
+        },
+        "    } {"
+    ),
+    true
+);
+
+assert.equal(
+    shouldSuppressIndentReturnTypeClose(
+        {
+            ruleId: "indent",
+            messageId: "wrongIndentation",
+            message: "Expected indentation of 8 spaces but found 4."
+        },
+        "    } | false {"
+    ),
+    false
+);
+
 console.log("local eslint rule tests passed");

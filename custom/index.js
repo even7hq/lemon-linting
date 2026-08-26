@@ -1,5 +1,8 @@
 /** @type {import("eslint").ESLint.Plugin} */
 module.exports = {
+    processors: {
+        "filter-indent-return-type-close": require("./processors/FilterIndentReturnTypeClose.js").processor
+    },
     rules: {
         "blank-line-after-block-prop": require("./blank-line-after-block-prop"),
         "prevent-invalid-sanitization-regexp": require("./prevent-invalid-sanitization-regexp"),
