@@ -146,10 +146,32 @@ runRule("no-em-dash", () => {
 
 runRule("no-await-import", () => {
     tsRuleTester.run("no-await-import", rules["no-await-import"], {
-        valid: ["import x from \"./x\";"],
+        valid: [
+            "import x from \"./x\";",
+            `class Tenant {
+                // @lazy
+                @HasMany(() => require("./TenantDomain").TenantDomain)
+                declare domainEntries: unknown[];
+            }`,
+            `class Tenant {
+                // @lazy
+                @HasMany(() => require("./TenantDomain").TenantDomain)
+                declare first: unknown[];
+
+                @HasMany(() => require("./TenantFile").TenantFile)
+                declare second: unknown[];
+            }`
+        ],
         invalid: [{
             code: "async function f() { await import(\"./x\"); }",
             errors: [{ message: /await import/ }]
+        },
+        {
+            code: `class Tenant {
+                @HasMany(() => require("./TenantDomain").TenantDomain)
+                declare domainEntries: unknown[];
+            }`,
+            errors: [{ message: /require\(\)/ }]
         }]
     });
 });
