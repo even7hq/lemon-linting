@@ -1,6 +1,6 @@
 {
   "name": "@lemon/linting",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "index.js",
   "license": "MIT",
   "author": "Gio Pavanelli <gio+devambient@even7.com.br>",
