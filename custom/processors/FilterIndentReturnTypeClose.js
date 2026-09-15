@@ -47,8 +47,9 @@ const processor = {
 
     preprocess(text, filename) {
         sourceLinesByFilename.set(filename, text.split(/\r?\n/));
-        // Return plain strings so ESLint does not synthesize virtual filenames that
-        // break @typescript-eslint/parser project resolution on CLI file arguments.
+
+        // Do not pass `filename` here. ESLint would lint a virtual path
+        // (`file.ts/0_<absolute-path>`) that TypeScript projectService cannot resolve.
         return [text];
     },
 

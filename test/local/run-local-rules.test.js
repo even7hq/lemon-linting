@@ -28,6 +28,7 @@ const rules = {
     "no-em-dash": require("../../custom/no-em-dash.js"),
     "no-reexport-stub": require("../../custom/no-reexport-stub.js"),
     "no-unsafe-type-assertion": require("../../custom/no-unsafe-type-assertion.js"),
+    "no-reflect-typing": require("../../custom/no-reflect-typing.js"),
     "no-catch-any": require("../../custom/no-catch-any.js"),
     "no-empty-catch": require("../../custom/no-empty-catch.js"),
     "vue-no-style-block": require("../../custom/vue-no-style-block.js"),
@@ -83,6 +84,26 @@ runRule("no-unsafe-type-assertion", () => {
             {
                 code: "const x = v as unknown as Foo;",
                 errors: [{ message: /as unknown/ }]
+            }
+        ]
+    });
+});
+
+runRule("no-reflect-typing", () => {
+    tsRuleTester.run("no-reflect-typing", rules["no-reflect-typing"], {
+        valid: [
+            "const x: number = 1;",
+            "Reflect.apply(fn, null, []);",
+            "Reflect.construct(Date, []);"
+        ],
+        invalid: [
+            {
+                code: "const code = Reflect.get(err, \"code\");",
+                errors: [{ message: /Reflect\.get/ }]
+            },
+            {
+                code: "Reflect.set(target, \"key\", value);",
+                errors: [{ message: /Reflect\.set/ }]
             }
         ]
     });
@@ -146,10 +167,32 @@ runRule("no-em-dash", () => {
 
 runRule("no-await-import", () => {
     tsRuleTester.run("no-await-import", rules["no-await-import"], {
-        valid: ["import x from \"./x\";"],
+        valid: [
+            "import x from \"./x\";",
+            `class Tenant {
+                // @lazy
+                @HasMany(() => require("./TenantDomain").TenantDomain)
+                declare domainEntries: unknown[];
+            }`,
+            `class Tenant {
+                // @lazy
+                @HasMany(() => require("./TenantDomain").TenantDomain)
+                declare first: unknown[];
+
+                @HasMany(() => require("./TenantFile").TenantFile)
+                declare second: unknown[];
+            }`
+        ],
         invalid: [{
             code: "async function f() { await import(\"./x\"); }",
             errors: [{ message: /await import/ }]
+        },
+        {
+            code: `class Tenant {
+                @HasMany(() => require("./TenantDomain").TenantDomain)
+                declare domainEntries: unknown[];
+            }`,
+            errors: [{ message: /require\(\)/ }]
         }]
     });
 });

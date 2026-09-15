@@ -27,6 +27,7 @@ module.exports = {
         "no-em-dash": require("./no-em-dash"),
         "no-reexport-stub": require("./no-reexport-stub"),
         "no-unsafe-type-assertion": require("./no-unsafe-type-assertion"),
+        "no-reflect-typing": require("./no-reflect-typing"),
         "no-catch-any": require("./no-catch-any"),
         "no-empty-catch": require("./no-empty-catch"),
         "vue-no-style-block": require("./vue-no-style-block"),

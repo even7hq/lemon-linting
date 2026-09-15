@@ -14,6 +14,7 @@ const tsRules = {
     "@typescript-eslint/no-explicit-any": "off",
 
     "local/no-unsafe-type-assertion": "error",
+    "local/no-reflect-typing": "error",
     "local/no-catch-any": "error",
 
     // Disabled - local/remove-unused-vars handles this with autofix

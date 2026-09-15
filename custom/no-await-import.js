@@ -54,32 +54,102 @@ module.exports = {
         }
 
         /**
-         * Returns true if a `// @tag` comment (non-eslint, non-ts) precedes the statement.
+         * Returns true if a `// @tag` comment (non-eslint, non-ts) precedes the node or
+         * any ancestor (e.g. `// @lazy` above a Sequelize `@HasMany` decorator).
          *
          * @param {import("eslint").Rule.Node} node
          * @returns {boolean}
          */
         function isJustified(node) {
-            let target = node;
+            let current = node;
 
-            while (
-                target.parent &&
-                target.parent.type !== "Program" &&
-                target.parent.type !== "BlockStatement" &&
-                target.parent.type !== "SwitchCase"
-            ) {
-                target = target.parent;
+            while (current) {
+                const comments = sourceCode.getCommentsBefore(current);
+
+                for (const comment of comments) {
+                    if (/@(?!eslint-|ts-)(\w+)/.test(comment.value)) {
+                        return true;
+                    }
+                }
+
+                current = current.parent;
             }
 
-            const comments = sourceCode.getCommentsBefore(target);
+            return hasClassBodyLazyComment(node);
+        }
 
-            for (const comment of comments) {
+        /**
+         * When a single `// @lazy` sits at the top of a class section, it applies to every
+         * decorated property below (Sequelize association pattern).
+         *
+         * @param {import("eslint").Rule.Node} node
+         * @returns {boolean}
+         */
+        function hasClassBodyLazyComment(node) {
+            if (!isInsideDecoratorProperty(node)) {
+                return false;
+            }
+
+            const member = findEnclosingClassMember(node);
+            const classBody = member?.parent;
+
+            if (!member || classBody?.type !== "ClassBody") {
+                return false;
+            }
+
+            for (const comment of sourceCode.ast.comments) {
+                if (comment.range[0] < classBody.range[0] || comment.range[1] > member.range[0]) {
+                    continue;
+                }
+
                 if (/@(?!eslint-|ts-)(\w+)/.test(comment.value)) {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        /**
+         * @param {import("eslint").Rule.Node} node
+         * @returns {boolean}
+         */
+        function isInsideDecoratorProperty(node) {
+            let current = node;
+
+            while (current) {
+                if (current.type === "Decorator") {
+                    const parent = current.parent;
+
+                    return parent?.type === "PropertyDefinition" || parent?.type === "ClassProperty";
+                }
+
+                current = current.parent;
+            }
+
+            return false;
+        }
+
+        /**
+         * @param {import("eslint").Rule.Node} node
+         * @returns {import("eslint").Rule.Node | null}
+         */
+        function findEnclosingClassMember(node) {
+            let current = node;
+
+            while (current) {
+                if (
+                    current.type === "PropertyDefinition" ||
+                    current.type === "MethodDefinition" ||
+                    current.type === "ClassProperty"
+                ) {
+                    return current;
+                }
+
+                current = current.parent;
+            }
+
+            return null;
         }
 
         return {
