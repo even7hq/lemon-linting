@@ -18,14 +18,16 @@
     "./lua.config": "./lua.config.js",
     "./zig.config": "./zig.config.js",
     "./sql.config": "./sql.config.js",
-    "./custom": "./custom/index.js"
+    "./custom": "./custom/index.js",
+    "./codemods/inline-object-literal": "./scripts/codemods/InlineObjectLiteralFix.mjs"
   },
   "bin": {
     "eslint": "./node_modules/.bin/eslint"
   },
   "scripts": {
-    "test": "node --test test/local/run-local-rules.test.js",
-    "test:zig": "node test/zig/run-zlint.test.js"
+    "test": "node --test test/local/run-local-rules.test.js test/codemods/inline-object-literal-fix.test.js",
+    "test:zig": "node test/zig/run-zlint.test.js",
+    "codemod:inline-object-literal": "node scripts/codemods/InlineObjectLiteralFix.mjs"
   },
   "dependencies": {
     "@eslint/js": "^9.39.4",

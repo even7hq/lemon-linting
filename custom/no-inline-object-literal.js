@@ -1,38 +1,6 @@
-/**
- * Disallows inline object literals except empty objects or up to N shorthand-only properties.
- */
-
-/**
- * @param {import("estree").Property | import("estree").SpreadElement} prop Object literal member.
- * @returns {boolean} True when the member is a simple shorthand property.
- */
-function isShorthandProperty(prop) {
-    return (
-        prop.type === "Property" &&
-        prop.shorthand === true &&
-        prop.kind === "init" &&
-        prop.method !== true
-    );
-}
-
-/**
- * @param {import("estree").ObjectExpression} node Object literal expression.
- * @param {number} maxShorthandProperties Maximum shorthand properties allowed.
- * @returns {boolean} True when the literal is allowed inline.
- */
-function isAllowedInlineObject(node, maxShorthandProperties) {
-    const properties = node.properties;
-
-    if (properties.length === 0) {
-        return true;
-    }
-
-    if (properties.length > maxShorthandProperties) {
-        return false;
-    }
-
-    return properties.every(isShorthandProperty);
-}
+const {
+    isViolatingInlineObjectLiteral
+} = require("../scripts/codemods/inline-object-literal-policy");
 
 /**
  * @type {import("eslint").Rule.RuleModule}
@@ -54,6 +22,11 @@ module.exports = {
                         type: "integer",
                         minimum: 1,
                         default: 2
+                    },
+
+                    emptyObjectImport: {
+                        type: "string",
+                        description: "Module specifier for emptyObject() used by the InlineObjectLiteralFix codemod"
                     }
                 },
 
@@ -64,20 +37,38 @@ module.exports = {
 
     create(context) {
         const maxShorthandProperties = context.options[0]?.maxShorthandProperties ?? 2;
+        const emptyObjectImport = context.options[0]?.emptyObjectImport;
+
+        /**
+         * Builds the shell command to run InlineObjectLiteralFix on this file.
+         *
+         * @returns Codemod command line for the current file.
+         */
+        function codemodCommand() {
+            const filename = context.filename ?? context.physicalFilename ?? "file.ts";
+            const importFlag = emptyObjectImport
+                ? ` --import-from "${emptyObjectImport}"`
+                : " --import-from \"<your-emptyObject-module>\"";
+
+            return `node node_modules/@lemon/linting/scripts/codemods/InlineObjectLiteralFix.mjs${importFlag} "${filename}"`;
+        }
 
         return {
             ObjectExpression(node) {
-                if (isAllowedInlineObject(node, maxShorthandProperties)) {
+                if (!isViolatingInlineObjectLiteral(node.properties, maxShorthandProperties)) {
                     return;
                 }
 
+                const message =
+                    "Inline object literals are not allowed (use InlineObjectLiteralFix codemod or emptyObject + assignments, "
+                    + "or at most {{max}} shorthand properties e.g. `{ name, tel }`). Codemod: {{command}}";
+
                 context.report({
                     node,
-                    message:
-                        "Inline object literals are not allowed. Build a typed object with property assignments, or use at most {{max}} shorthand properties (e.g. `{ name, tel }`).",
-
+                    message,
                     data: {
-                        max: String(maxShorthandProperties)
+                        max: String(maxShorthandProperties),
+                        command: codemodCommand()
                     }
                 });
             }
@@ -85,4 +76,6 @@ module.exports = {
     }
 };
 
-module.exports.isAllowedInlineObject = isAllowedInlineObject;
+module.exports.isAllowedInlineObject = function isAllowedInlineObject(node, maxShorthandProperties) {
+    return !isViolatingInlineObjectLiteral(node.properties, maxShorthandProperties);
+};

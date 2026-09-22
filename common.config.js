@@ -155,6 +155,15 @@ const config = [
                 }
             ]
         }
+    },
+
+    {
+        files: ["scripts/codemods/**/*.mjs"],
+        rules: {
+            "no-console": ["error", { allow: ["warn", "error", "debug"] }],
+            "local/prefer-else-newline-if": "off",
+            indent: "off"
+        }
     }
 ];
 
