@@ -5,6 +5,7 @@ const { RuleTester } = require("eslint");
 const vueParser = require("vue-eslint-parser");
 const tsParser = require("@typescript-eslint/parser");
 const { shouldSuppressIndentReturnTypeClose } = require("../../custom/processors/FilterIndentReturnTypeClose.js");
+const luaParser = require("../../parsers/lua-parser.js");
 const noopParser = require("../../parsers/noop-parser");
 
 /**
@@ -36,7 +37,9 @@ const rules = {
     "no-sql-placeholder-fk": require("../../custom/no-sql-placeholder-fk.js"),
     "pt-br-accents": require("../../custom/pt-br-accents.js"),
     "no-await-import": require("../../custom/no-await-import.js"),
-    "remove-unused-vars": require("../../custom/remove-unused-vars.js")
+    "remove-unused-vars": require("../../custom/remove-unused-vars.js"),
+    "require-jsdoc-block-indent": require("../../custom/require-jsdoc-block-indent.js"),
+    "lua/consistent-doc-prefix": require("../../custom/lua/consistent-doc-prefix.js")
 };
 
 const tsRuleTester = new RuleTester({
@@ -73,6 +76,12 @@ const sqlRuleTester = new RuleTester({
     }
 });
 
+const luaRuleTester = new RuleTester({
+    languageOptions: {
+        parser: luaParser
+    }
+});
+
 runRule("no-unsafe-type-assertion", () => {
     tsRuleTester.run("no-unsafe-type-assertion", rules["no-unsafe-type-assertion"], {
         valid: ["const x: number = 1;"],
@@ -89,6 +98,49 @@ runRule("no-unsafe-type-assertion", () => {
     });
 });
 
+runRule("require-jsdoc-block-indent", () => {
+    tsRuleTester.run("require-jsdoc-block-indent", rules["require-jsdoc-block-indent"], {
+        valid: [
+            "/** Summary. */",
+            `
+            /**
+             * Summary.
+             *
+             * @param command Raw remote command.
+             * @returns Whether it matches.
+             */
+            function f(command: string) {}
+            `
+        ],
+
+        invalid: [
+            {
+                code: `
+                /**
+                 * Detects find actions that change files.
+                 *
+ * @param command Raw remote command.
+ * @returns Whether \`-delete\` or \`-exec\` is present.
+                 */
+                function hasFindMutation(command: string) {}
+                `,
+
+                output: `
+                /**
+                 * Detects find actions that change files.
+                 *
+                 * @param command Raw remote command.
+                 * @returns Whether \`-delete\` or \`-exec\` is present.
+                 */
+                function hasFindMutation(command: string) {}
+                `,
+
+                errors: [{ message: /JSDoc lines must use the same/ }]
+            }
+        ]
+    });
+});
+
 runRule("no-reflect-typing", () => {
     tsRuleTester.run("no-reflect-typing", rules["no-reflect-typing"], {
         valid: [
@@ -96,6 +148,7 @@ runRule("no-reflect-typing", () => {
             "Reflect.apply(fn, null, []);",
             "Reflect.construct(Date, []);"
         ],
+
         invalid: [
             {
                 code: "const code = Reflect.get(err, \"code\");",
@@ -183,6 +236,7 @@ runRule("no-await-import", () => {
                 declare second: unknown[];
             }`
         ],
+
         invalid: [{
             code: "async function f() { await import(\"./x\"); }",
             errors: [{ message: /await import/ }]
@@ -192,6 +246,7 @@ runRule("no-await-import", () => {
                 @HasMany(() => require("./TenantDomain").TenantDomain)
                 declare domainEntries: unknown[];
             }`,
+
             errors: [{ message: /require\(\)/ }]
         }]
     });
@@ -269,6 +324,34 @@ runRule("remove-unused-vars exported enum", () => {
 
                 output: "",
                 errors: [{ message: /enum 'UnusedEnum' is declared but never used/ }]
+            }
+        ]
+    });
+});
+
+runRule("lua/consistent-doc-prefix", () => {
+    luaRuleTester.run("lua/consistent-doc-prefix", rules["lua/consistent-doc-prefix"], {
+        valid: [
+            `--- Summary.
+--- @param x number Description
+function foo(x) end`,
+            `-- File header, not a TSDoc block.
+function bar() end`
+        ],
+
+        invalid: [
+            {
+                code: `--- Returns something.
+---
+-- @param ip string Client IP
+function allowed(ip) end`,
+
+                output: `--- Returns something.
+---
+--- @param ip string Client IP
+function allowed(ip) end`,
+
+                errors: [{ message: /TSDoc comment lines must use/ }]
             }
         ]
     });

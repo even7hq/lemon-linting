@@ -1,4 +1,6 @@
-/** @type {import("eslint").Rule.RuleModule} */
+/**
+ * @type {import("eslint").Rule.RuleModule}
+ */
 module.exports = {
     meta: {
         type: "suggestion",
@@ -7,57 +9,53 @@ module.exports = {
             category: "Best Practices",
             recommended: true
         },
+
         schema: []
     },
 
     create(context) {
         const sourceCode = context.sourceCode;
 
+        const {
+            getCommentRunAboveLine,
+            isTsdocCommentRun,
+            lineIndexAtOffset
+        } = require("./LuaDocCommentRun");
+
         /**
          * Returns the doc block immediately above a function declaration by
-         * scanning source text lines directly — the Lua parser does not populate
+         * scanning source text lines directly - the Lua parser does not populate
          * node.loc reliably, so we cannot use getCommentsBefore() which would
          * return every comment in the file above the (always-line-1) node.
          *
          * A doc block is a consecutive run of `--` / `---` lines directly above
          * the `function` keyword that contains at least one @tag.
+         *
+         * @param node Lua function AST node.
+         * @returns Combined doc text or null when no TSDoc block exists.
          */
         function getDocBlockFromSource(node) {
             // node.range[0] is the character offset of `function` in the source.
             if (!node.range) return null;
 
             const text = sourceCode.getText();
-            const funcStart = node.range[0];
-
-            // Find the line number of the function by counting newlines before it.
-            const before = text.slice(0, funcStart);
-            const funcLine = (before.match(/\n/g) || []).length; // 0-based
-
             const lines = text.split("\n");
-            const block = [];
+            const funcLine = lineIndexAtOffset(text, node.range[0]);
+            const run = getCommentRunAboveLine(lines, funcLine);
 
-            // Walk backwards from the line above the function.
-            for (let i = funcLine - 1; i >= 0; i--) {
-                const trimmed = lines[i].trim();
-
-                if (trimmed === "") break;
-                if (!trimmed.startsWith("--")) break;
-
-                block.unshift({ raw: trimmed, lineIndex: i });
+            if (!isTsdocCommentRun(run)) {
+                return null;
             }
 
-            if (!block.length) return null;
-
-            const hasTag = block.some((l) => /@param\b|@returns?\b|@throws?\b/.test(l.raw));
-
-            if (!hasTag) return null;
-
-            return block.map((l) => l.raw).join("\n");
+            return run.map((entry) => entry.lineText.trim()).join("\n");
         }
 
         /**
          * Returns true when the function body contains at least one `return <value>`
          * statement (bare `return` with no value does not count).
+         *
+         * @param node Lua function AST node.
+         * @returns True when a value-returning return is present in the body.
          */
         function functionHasReturnValue(node) {
             if (!node.range) return false;

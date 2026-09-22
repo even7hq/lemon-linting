@@ -1,67 +1,104 @@
 /**
- * Enforces that `@tag` lines in a Lua doc-comment block use the `---` prefix.
+ * Enforces `---` on every line of a Lua TSDoc block above a function.
  *
- * Only lines containing `@param`, `@returns`/`@return`, or `@throws`/`@throw`
- * are required to use `---`. Plain description lines are left untouched.
+ * When a comment run above `function` includes `@param`, `@return(s)`, or
+ * `@throws`, description and separator lines must also use `---`, not `--`.
  *
  * @example
  * -- Bad
- * -- Description.
+ * --- Summary.
+ * ---
  * -- @param x number Description
  * function foo(x) end
  *
  * -- Good
- * -- Description.
+ * --- Summary.
+ * ---
  * --- @param x number Description
  * function foo(x) end
  */
 
-/** @type {import("eslint").Rule.RuleModule} */
+const {
+    getCommentRunAboveLine,
+    isTsdocCommentRun,
+    lineIndexAtOffset
+} = require("./LuaDocCommentRun");
+
+/**
+ * @type {import("eslint").Rule.RuleModule}
+ */
 module.exports = {
     meta: {
         type: "layout",
         fixable: "code",
         docs: {
-            description: "Require `---` prefix on @tag lines of a Lua doc-comment block",
+            description: "Require `---` prefix on all lines of a Lua TSDoc comment block",
             category: "Style",
             recommended: true
         },
+
         schema: []
     },
 
     create(context) {
         const sourceCode = context.sourceCode;
 
-        const TAG_RE = /@param\b|@returns?\b|@throws?\b/;
+        /**
+         * Reports and fixes `--` lines inside a TSDoc comment run.
+         *
+         * @param run Comment lines above the anchor.
+         * @returns Nothing.
+         */
+        function checkCommentRun(run) {
+            if (!isTsdocCommentRun(run)) {
+                return;
+            }
 
-        return {
-            Program() {
-                const text = sourceCode.getText();
-                const lines = text.split("\n");
+            const text = sourceCode.getText();
+            const lines = text.split("\n");
 
-                lines.forEach((lineText, idx) => {
-                    const trimmed = lineText.trimStart();
+            for (const entry of run) {
+                const lineText = entry.lineText;
+                const trimmed = lineText.trimStart();
 
-                    // Only double-dash lines that carry a @tag.
-                    if (!trimmed.startsWith("--") || trimmed.startsWith("---")) return;
-                    if (!TAG_RE.test(trimmed)) return;
+                if (!trimmed.startsWith("--") || trimmed.startsWith("---")) {
+                    continue;
+                }
 
-                    const lineNum = idx + 1;
-                    const colOffset = lineText.indexOf("--");
+                const colOffset = lineText.indexOf("--");
+                const lineStart = lines.slice(0, entry.lineIndex).reduce((acc, line) => acc + line.length + 1, 0);
+                const dashStart = lineStart + colOffset;
+                const lineNum = entry.lineIndex + 1;
 
-                    // Absolute offset of `--` in the full source.
-                    const lineStart = text.split("\n").slice(0, idx).reduce((acc, l) => acc + l.length + 1, 0);
-                    const dashStart = lineStart + colOffset;
-
-                    context.report({
-                        loc: { line: lineNum, column: colOffset },
-                        message: "Doc @tag lines must use `---` prefix, not `--`.",
-                        fix(fixer) {
-                            return fixer.replaceTextRange([dashStart, dashStart + 2], "---");
-                        }
-                    });
+                context.report({
+                    loc: { line: lineNum, column: colOffset },
+                    message: "TSDoc comment lines must use `---` prefix, not `--`.",
+                    fix(fixer) {
+                        return fixer.replaceTextRange([dashStart, dashStart + 2], "---");
+                    }
                 });
             }
+        }
+
+        /**
+         * @param {import("eslint").Rule.Node} node Function node with a range.
+         * @returns Nothing.
+         */
+        function checkFunctionAnchor(node) {
+            if (!node.range) {
+                return;
+            }
+
+            const text = sourceCode.getText();
+            const lines = text.split("\n");
+            const anchorLine = lineIndexAtOffset(text, node.range[0]);
+            const run = getCommentRunAboveLine(lines, anchorLine);
+
+            checkCommentRun(run);
+        }
+
+        return {
+            LuaFunctionDeclaration: checkFunctionAnchor
         };
     }
 };

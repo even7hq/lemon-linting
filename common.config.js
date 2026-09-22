@@ -1,7 +1,7 @@
-const js = require("@eslint/js");
-const globals = require("globals");
 const importPlugin = require("eslint-plugin-import-x");
 const unusedImports = require("eslint-plugin-unused-imports");
+const globals = require("globals");
+const js = require("@eslint/js");
 const localPlugin = require("./custom");
 
 /**
@@ -15,6 +15,7 @@ const localRules = {
         varsIgnorePattern: "^_",
         argsIgnorePattern: "^_"
     }],
+
     "local/max-inline-calls": ["warn", { max: 3 }],
     "local/prefer-else-newline-if": "warn",
     "local/require-jsdoc-param-returns": "warn",
@@ -31,10 +32,13 @@ const localRules = {
     "local/require-blank-lines-around-jsdoc": "warn",
     "local/require-jsdoc-throws": "warn",
     "local/no-inline-type-import": "warn",
-    "local/no-jsdoc-tag-format": "warn"
+    "local/no-jsdoc-tag-format": "warn",
+    "local/require-jsdoc-block-indent": "warn"
 };
 
-/** @type {import("eslint").Linter.Config[]} */
+/**
+ * @type {import("eslint").Linter.Config[]}
+ */
 const config = [
     js.configs.recommended,
 
@@ -145,6 +149,7 @@ const config = [
                         { pattern: "@/**", group: "internal" },
                         { pattern: "~**", group: "internal" }
                     ],
+
                     pathGroupsExcludedImportTypes: ["builtin"],
                     alphabetize: { order: "asc" }
                 }

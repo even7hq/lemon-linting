@@ -24,6 +24,7 @@ module.exports = {
         "require-jsdoc-throws": require("./require-jsdoc-throws"),
         "no-inline-type-import": require("./no-inline-type-import"),
         "no-jsdoc-tag-format": require("./no-jsdoc-tag-format"),
+        "require-jsdoc-block-indent": require("./require-jsdoc-block-indent"),
         "no-em-dash": require("./no-em-dash"),
         "no-reexport-stub": require("./no-reexport-stub"),
         "no-unsafe-type-assertion": require("./no-unsafe-type-assertion"),
