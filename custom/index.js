@@ -23,6 +23,7 @@ module.exports = {
         "require-blank-lines-around-jsdoc": require("./require-blank-lines-around-jsdoc"),
         "require-jsdoc-throws": require("./require-jsdoc-throws"),
         "no-inline-type-import": require("./no-inline-type-import"),
+        "no-inline-object-literal": require("./no-inline-object-literal"),
         "no-jsdoc-tag-format": require("./no-jsdoc-tag-format"),
         "require-jsdoc-block-indent": require("./require-jsdoc-block-indent"),
         "no-em-dash": require("./no-em-dash"),

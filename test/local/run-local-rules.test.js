@@ -39,7 +39,9 @@ const rules = {
     "no-await-import": require("../../custom/no-await-import.js"),
     "remove-unused-vars": require("../../custom/remove-unused-vars.js"),
     "require-jsdoc-block-indent": require("../../custom/require-jsdoc-block-indent.js"),
-    "lua/consistent-doc-prefix": require("../../custom/lua/consistent-doc-prefix.js")
+    "lua/consistent-doc-prefix": require("../../custom/lua/consistent-doc-prefix.js"),
+    "no-inline-object-literal": require("../../custom/no-inline-object-literal.js"),
+    "require-jsdoc-param-returns": require("../../custom/require-jsdoc-param-returns.js")
 };
 
 const tsRuleTester = new RuleTester({
@@ -324,6 +326,66 @@ runRule("remove-unused-vars exported enum", () => {
 
                 output: "",
                 errors: [{ message: /enum 'UnusedEnum' is declared but never used/ }]
+            }
+        ]
+    });
+});
+
+runRule("require-jsdoc-param-returns", () => {
+    tsRuleTester.run("require-jsdoc-param-returns", rules["require-jsdoc-param-returns"], {
+        valid: [
+            `
+            /**
+             * Builds a catalog field key with person. prefix.
+             *
+             * @param leafKey Path under the person object
+             * @returns Catalog field key with person. prefix
+             */
+            function catalogKey(leafKey: string): string {
+                return leafKey;
+            }
+            `
+        ],
+
+        invalid: [
+            {
+                code: `
+                /**
+                 * @param leafKey Path under the person object
+                 * @returns Catalog field key
+                 */
+                function catalogKey(leafKey: string): string {
+                    return leafKey;
+                }
+                `,
+
+                errors: [{ message: /summary sentence before block tags/ }]
+            }
+        ]
+    });
+});
+
+runRule("no-inline-object-literal", () => {
+    tsRuleTester.run("no-inline-object-literal", rules["no-inline-object-literal"], {
+        valid: [
+            "const empty = {};",
+            "const pair = { name, tel };",
+            "const one = { id };",
+            "fn({ a, b });"
+        ],
+
+        invalid: [
+            {
+                code: "return { name: this.name, online: false };",
+                errors: [{ message: /Inline object literals are not allowed/ }]
+            },
+            {
+                code: "const triple = { a, b, c };",
+                errors: [{ message: /Inline object literals are not allowed/ }]
+            },
+            {
+                code: "const explicit = { success: true };",
+                errors: [{ message: /Inline object literals are not allowed/ }]
             }
         ]
     });

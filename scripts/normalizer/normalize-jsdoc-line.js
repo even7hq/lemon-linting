@@ -1,10 +1,5 @@
 /**
- * Shared JSDoc tag normalization for TypeScript.
- *
- * Correct:   @param req The request
- * Incorrect: @param req - The request
- * Incorrect: @param req {String} The request
- * Allowed:  @param params {@link Foo} Description
+ * Shared JSDoc tag normalization for TypeScript (tag layout and summary helpers).
  */
 
 /**
@@ -15,12 +10,12 @@ const RAW_PARAM_TYPE_RE = /(@param\s+\S+)\s+\{(?!@)[^}]+\}\s*/g;
 /**
  * Regular expression to match parameter type declarations with a dash separator.
  */
-const PARAM_DASH_RE = /(@param\s+\S+(?:\s+\{@[^}]+\})*)\s+[-–—]\s+/;
+const PARAM_DASH_RE = /(@param\s+\S+(?:\s+\{@[^}]+\})*)\s+[-\u2013\u2014]\s+/;
 
 /**
  * Regular expression to match return type declarations with a dash separator.
  */
-const RETURNS_DASH_RE = /(@returns?)\s+[-–—]\s+(?=[A-Za-z`"'/{])/;
+const RETURNS_DASH_RE = /(@returns?)\s+[-\u2013\u2014]\s+(?=[A-Za-z`"'/{])/;
 
 /**
  * Normalizes a single JSDoc comment line containing @param or @returns tags.
@@ -89,9 +84,63 @@ function hasJsdocTagFormatViolation(line) {
     return normalizeJsdocLine(line) !== line;
 }
 
+/**
+ * Returns true when JSDoc text includes a prose summary before the first block tag.
+ *
+ * @param {string} commentValue ESLint block comment inner text (starts with `*`).
+ * @returns {boolean} True when a non-empty summary line appears before `@` tags.
+ */
+function hasJsdocSummaryBeforeTags(commentValue) {
+    const lines = commentValue.split(/\r?\n/);
+
+    for (const line of lines) {
+        const trimmed = line.replace(/^\s*\*?\s*/, "").trim();
+
+        if (trimmed === "") {
+            continue;
+        }
+
+        if (trimmed.startsWith("@")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Returns true when a Lua doc comment run includes prose before `@` tags.
+ *
+ * @param {string} combinedDocText Joined doc lines from a Lua comment block.
+ * @returns {boolean} True when a summary line appears before block tags.
+ */
+function hasLuaDocSummaryBeforeTags(combinedDocText) {
+    const lines = combinedDocText.split(/\r?\n/);
+
+    for (const line of lines) {
+        const trimmed = line.replace(/^---?\s*/, "").trim();
+
+        if (trimmed === "") {
+            continue;
+        }
+
+        if (trimmed.startsWith("@")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 module.exports = {
     normalizeJsdocLine,
     normalizeJsdocCommentValue,
     normalizeFileContent,
-    hasJsdocTagFormatViolation
+    hasJsdocTagFormatViolation,
+    hasJsdocSummaryBeforeTags,
+    hasLuaDocSummaryBeforeTags
 };

@@ -16,6 +16,7 @@ module.exports = {
     create(context) {
         const sourceCode = context.sourceCode;
 
+        const { hasLuaDocSummaryBeforeTags } = require("../../scripts/normalizer/normalize-jsdoc-line");
         const {
             getCommentRunAboveLine,
             isTsdocCommentRun,
@@ -84,6 +85,13 @@ module.exports = {
             const combined = getDocBlockFromSource(node);
 
             if (!combined) return;
+
+            if (!hasLuaDocSummaryBeforeTags(combined)) {
+                context.report({
+                    node,
+                    message: "Lua doc comments must include a summary line before @param, @return, or @throws tags."
+                });
+            }
 
             const params = node.params ?? [];
 

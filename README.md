@@ -321,7 +321,7 @@ Plugin interno em [`custom/`](./custom/):
 
 **JSDoc e documentação**
 
-- `local/require-jsdoc-param-returns` - `@param` e `@returns` obrigatórios
+- `local/require-jsdoc-param-returns` - resumo TSDoc antes das tags, `@param` e `@returns` obrigatórios
 - `local/require-multiline-jsdoc` - JSDoc multilinha
 - `local/require-blank-lines-around-jsdoc` - linhas em branco ao redor do bloco
 - `local/require-blank-line-between-documented-props` - espaço entre props documentadas
@@ -354,6 +354,7 @@ Testes: `yarn test` na raiz do pacote.
 **Legibilidade**
 
 - `local/max-inline-calls` - limita encadeamento de chamadas inline
+- `local/no-inline-object-literal` - proíbe objetos inline, exceto `{}` ou até 2 props shorthand (`{ a, b }`)
 - `local/prefer-else-newline-if` - `else if` na linha seguinte
 - `local/blank-line-after-block-prop` - linha em branco após props de bloco
 

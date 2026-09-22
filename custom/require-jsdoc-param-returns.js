@@ -1,12 +1,17 @@
-/** @type {import("eslint").Rule.RuleModule} */
+const { hasJsdocSummaryBeforeTags } = require("../scripts/normalizer/normalize-jsdoc-line");
+
+/**
+ * @type {import("eslint").Rule.RuleModule}
+ */
 module.exports = {
     meta: {
         type: "suggestion",
         docs: {
-            description: "Require @param and @returns TSDoc tags on documented functions and methods",
+            description: "Require TSDoc summary, @param, and @returns on documented functions and methods",
             category: "Best Practices",
             recommended: true
         },
+
         schema: []
     },
 
@@ -105,6 +110,13 @@ module.exports = {
             const tags = getTagNames(commentValue);
             const params = node.params ?? [];
 
+            if (!hasJsdocSummaryBeforeTags(commentValue)) {
+                context.report({
+                    node: commentNode,
+                    message: "JSDoc must include a summary sentence before block tags (@param, @returns, etc.)."
+                });
+            }
+
             for (const param of params) {
                 if (param.type === "Identifier") {
                     const name = param.name;
@@ -162,7 +174,7 @@ module.exports = {
                 return;
             }
 
-            // Vue Options API computed properties don't need @returns — they are
+            // Vue Options API computed properties don't need @returns - they are
             // conceptually getters, not regular functions.
             if (isInsideVueComputedOption(node)) {
                 return;
