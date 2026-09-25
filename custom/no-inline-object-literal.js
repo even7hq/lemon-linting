@@ -1,5 +1,6 @@
 const {
-    isViolatingInlineObjectLiteral
+    isViolatingInlineObjectLiteral,
+    isDeclarativeConfigObjectLiteral
 } = require("../scripts/codemods/inline-object-literal-policy");
 
 /**
@@ -55,6 +56,10 @@ module.exports = {
 
         return {
             ObjectExpression(node) {
+                if (isDeclarativeConfigObjectLiteral(node)) {
+                    return;
+                }
+
                 if (!isViolatingInlineObjectLiteral(node.properties, maxShorthandProperties)) {
                     return;
                 }

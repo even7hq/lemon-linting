@@ -354,7 +354,7 @@ Testes: `yarn test` na raiz do pacote.
 **Legibilidade**
 
 - `local/max-inline-calls` - limita encadeamento de chamadas inline
-- `local/no-inline-object-literal` - proíbe objetos inline, exceto `{}` ou até 2 props shorthand (`{ a, b }`). **Sem autofix no ESLint** - use o codemod `scripts/codemods/InlineObjectLiteralFix.mjs` (`yarn codemod:inline-object-literal --import-from "<módulo-emptyObject>" [arquivos]`). Configure `emptyObjectImport` na regra para o comando aparecer no aviso do ESLint.
+- `local/no-inline-object-literal` - proíbe objetos inline de domínio/DTO, exceto `{}` ou até 2 props shorthand (`{ a, b }`). **Isento:** configs declarativas de CLI (`yargs` `.positional()`, `.option()`, etc.). **Sem autofix no ESLint** - use o codemod `scripts/codemods/InlineObjectLiteralFix.mjs` (`yarn codemod:inline-object-literal --import-from "<módulo-emptyObject>" [arquivos]`). Configure `emptyObjectImport` na regra para o comando aparecer no aviso do ESLint.
 - `local/prefer-else-newline-if` - `else if` na linha seguinte
 - `local/blank-line-after-block-prop` - linha em branco após props de bloco
 

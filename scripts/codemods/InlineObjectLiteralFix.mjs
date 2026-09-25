@@ -10,11 +10,38 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
+import { CLI_BUILDER_METHOD_NAMES } from "./inline-object-literal-policy.js";
 
 /**
  * Maximum shorthand properties allowed inline (must match inline-object-literal-policy).
  */
 const MAX_SHORTHAND = 2;
+
+/**
+ * Returns true for inline objects passed to CLI builder APIs (not domain DTOs).
+ *
+ * @param node Object literal expression.
+ * @returns True when the codemod should skip this literal.
+ */
+function isDeclarativeConfigObjectLiteral(node) {
+    const parent = node.parent;
+
+    if (!parent || !ts.isCallExpression(parent)) {
+        return false;
+    }
+
+    if (!parent.arguments.includes(node)) {
+        return false;
+    }
+
+    const expression = parent.expression;
+
+    if (!ts.isPropertyAccessExpression(expression)) {
+        return false;
+    }
+
+    return CLI_BUILDER_METHOD_NAMES.has(expression.name.text);
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -230,7 +257,7 @@ function collectViolations(sourceFile) {
      * @returns Nothing.
      */
     function visit(node) {
-        if (ts.isObjectLiteralExpression(node) && isViolating(node)) {
+        if (ts.isObjectLiteralExpression(node) && isViolating(node) && !isDeclarativeConfigObjectLiteral(node)) {
             nodes.push(node);
         }
 
