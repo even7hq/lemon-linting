@@ -41,6 +41,26 @@ function getCallMemberName(callee) {
 }
 
 /**
+ * Returns true when an object literal is a declarative CLI/schema config argument.
+ *
+ * @param {readonly unknown[]} callArguments Call expression arguments.
+ * @param {unknown} argumentNode Object literal node.
+ * @param {string | null} methodName Callee member name (e.g. option, positional).
+ * @returns {boolean} True when the literal is exempt from the inline-object policy.
+ */
+function isDeclarativeConfigObjectLiteralForArgument(callArguments, argumentNode, methodName) {
+    if (!callArguments || !callArguments.includes(argumentNode)) {
+        return false;
+    }
+
+    if (!methodName) {
+        return false;
+    }
+
+    return CLI_BUILDER_METHOD_NAMES.has(methodName);
+}
+
+/**
  * Returns true for inline objects passed to CLI builder APIs (not domain DTOs).
  *
  * @param {import("estree").ObjectExpression} node Object literal expression.
@@ -53,17 +73,9 @@ function isDeclarativeConfigObjectLiteral(node) {
         return false;
     }
 
-    if (!parent.arguments.includes(node)) {
-        return false;
-    }
-
     const methodName = getCallMemberName(parent.callee);
 
-    if (!methodName) {
-        return false;
-    }
-
-    return CLI_BUILDER_METHOD_NAMES.has(methodName);
+    return isDeclarativeConfigObjectLiteralForArgument(parent.arguments, node, methodName);
 }
 
 /**
@@ -104,5 +116,6 @@ module.exports = {
     CLI_BUILDER_METHOD_NAMES,
     isShorthandProperty,
     isViolatingInlineObjectLiteral,
-    isDeclarativeConfigObjectLiteral
+    isDeclarativeConfigObjectLiteral,
+    isDeclarativeConfigObjectLiteralForArgument
 };

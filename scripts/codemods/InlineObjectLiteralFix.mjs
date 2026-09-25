@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
-import { CLI_BUILDER_METHOD_NAMES } from "./inline-object-literal-policy.js";
+import { isDeclarativeConfigObjectLiteralForArgument } from "./inline-object-literal-policy.js";
 
 /**
  * Maximum shorthand properties allowed inline (must match inline-object-literal-policy).
@@ -18,29 +18,34 @@ import { CLI_BUILDER_METHOD_NAMES } from "./inline-object-literal-policy.js";
 const MAX_SHORTHAND = 2;
 
 /**
+ * Reads the method name from a TypeScript call callee when it is a simple member access.
+ *
+ * @param expression Call expression callee.
+ * @returns Method name or null.
+ */
+function getTsCallMemberName(expression) {
+    if (ts.isPropertyAccessExpression(expression)) {
+        return expression.name.text;
+    }
+
+    return null;
+}
+
+/**
  * Returns true for inline objects passed to CLI builder APIs (not domain DTOs).
  *
  * @param node Object literal expression.
+ * @param parent Immediate AST parent.
  * @returns True when the codemod should skip this literal.
  */
-function isDeclarativeConfigObjectLiteral(node) {
-    const parent = node.parent;
-
+function isDeclarativeConfigObjectLiteral(node, parent) {
     if (!parent || !ts.isCallExpression(parent)) {
         return false;
     }
 
-    if (!parent.arguments.includes(node)) {
-        return false;
-    }
+    const methodName = getTsCallMemberName(parent.expression);
 
-    const expression = parent.expression;
-
-    if (!ts.isPropertyAccessExpression(expression)) {
-        return false;
-    }
-
-    return CLI_BUILDER_METHOD_NAMES.has(expression.name.text);
+    return isDeclarativeConfigObjectLiteralForArgument(parent.arguments, node, methodName);
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -254,17 +259,18 @@ function collectViolations(sourceFile) {
      * Walks the AST and records violating object literals.
      *
      * @param node AST node.
+     * @param parent Parent node (TypeScript does not set node.parent on parse).
      * @returns Nothing.
      */
-    function visit(node) {
-        if (ts.isObjectLiteralExpression(node) && isViolating(node) && !isDeclarativeConfigObjectLiteral(node)) {
+    function visit(node, parent) {
+        if (ts.isObjectLiteralExpression(node) && isViolating(node) && !isDeclarativeConfigObjectLiteral(node, parent)) {
             nodes.push(node);
         }
 
-        ts.forEachChild(node, visit);
+        ts.forEachChild(node, (child) => visit(child, node));
     }
 
-    visit(sourceFile);
+    visit(sourceFile, undefined);
 
     nodes.sort((a, b) => b.pos - a.pos);
 

@@ -84,7 +84,48 @@ export function build(): { name: string; online: boolean } {
     fs.rmSync(dir, { recursive: true, force: true });
 }
 
-testCodemodRewritesReturnObject()
+/**
+ * Asserts that yargs-style .option() config objects are not rewritten.
+ *
+ * @returns Nothing.
+ */
+async function testCodemodSkipsYargsOptionObject() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "inline-obj-fix-yargs-"));
+    writeMinimalProject(dir);
+
+    const samplePath = path.join(dir, "src/Cli.ts");
+    const importFrom = "./EmptyObject.js";
+
+    fs.writeFileSync(
+        samplePath,
+        `export function withOptions(builder: { option: (name: string, cfg: Record<string, unknown>) => unknown }) {
+    return builder.option("yes", {
+        alias: "y",
+        type: "boolean",
+        description: "Auto-confirm"
+    });
+}
+`
+    );
+
+    const { fixFile } = await import(pathToFileURL(codemodPath).href);
+    const config = ts.readConfigFile(path.join(dir, "tsconfig.json"), ts.sys.readFile);
+    const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, dir);
+    const program = ts.createProgram({ rootNames: parsed.fileNames, options: parsed.options });
+
+    const changed = fixFile(samplePath, program, importFrom, false);
+
+    assert.equal(changed, false);
+
+    const out = fs.readFileSync(samplePath, "utf8");
+
+    assert.doesNotMatch(out, /draftObj/);
+    assert.match(out, /\.option\("yes", \{/);
+
+    fs.rmSync(dir, { recursive: true, force: true });
+}
+
+Promise.all([testCodemodRewritesReturnObject(), testCodemodSkipsYargsOptionObject()])
     .then(() => {
         console.log("PASS inline-object-literal-fix codemod");
     })
