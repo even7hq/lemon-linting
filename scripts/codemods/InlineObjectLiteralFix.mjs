@@ -48,6 +48,76 @@ function isDeclarativeConfigObjectLiteral(node, parent) {
     return isDeclarativeConfigObjectLiteralForArgument(parent.arguments, node, methodName);
 }
 
+/**
+ * Resolves the options object from export default or defineComponent(...).
+ *
+ * @param expression Export default expression.
+ * @returns Options object literal, if any.
+ */
+function resolveComponentOptionsExpression(expression) {
+    if (ts.isObjectLiteralExpression(expression)) {
+        return expression;
+    }
+
+    if (
+        ts.isCallExpression(expression) &&
+        ts.isIdentifier(expression.expression) &&
+        expression.expression.text === "defineComponent" &&
+        ts.isObjectLiteralExpression(expression.arguments[0])
+    ) {
+        return expression.arguments[0];
+    }
+
+    return undefined;
+}
+
+/**
+ * Returns true when node is under ancestor in the parent chain.
+ *
+ * @param ancestor Possible ancestor.
+ * @param node Descendant candidate.
+ * @returns True when ancestor contains node.
+ */
+function isUnderTsNode(ancestor, node) {
+    let current = node;
+
+    while (current) {
+        if (current === ancestor) {
+            return true;
+        }
+
+        current = current.parent;
+    }
+
+    return false;
+}
+
+/**
+ * Returns true for Vue Options API object literals (export default / defineComponent).
+ *
+ * @param node Object literal expression.
+ * @returns True when the codemod should skip this literal.
+ */
+function isVueComponentOptionsObjectLiteralTs(node) {
+    let current = node;
+
+    while (current) {
+        const parent = current.parent;
+
+        if (parent && ts.isExportAssignment(parent) && !parent.isExportEquals) {
+            const optionsRoot = resolveComponentOptionsExpression(parent.expression);
+
+            if (optionsRoot && isUnderTsNode(optionsRoot, node)) {
+                return true;
+            }
+        }
+
+        current = parent;
+    }
+
+    return false;
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
@@ -92,6 +162,28 @@ function parseArgs(argv) {
     }
 
     return { check, importFrom, projectPath, files: files.length > 0 ? files : null };
+}
+
+/**
+ * Sets parent pointers on every node (TypeScript parse does not populate them).
+ *
+ * @param root Source file root.
+ * @returns Nothing.
+ */
+function assignParents(root) {
+    /**
+     * Walks the tree and links each node to its parent.
+     *
+     * @param node AST node.
+     * @param parent Parent node.
+     * @returns Nothing.
+     */
+    function visit(node, parent) {
+        node.parent = parent;
+        ts.forEachChild(node, (child) => visit(child, node));
+    }
+
+    visit(root, undefined);
 }
 
 /**
@@ -263,7 +355,14 @@ function collectViolations(sourceFile) {
      * @returns Nothing.
      */
     function visit(node, parent) {
-        if (ts.isObjectLiteralExpression(node) && isViolating(node) && !isDeclarativeConfigObjectLiteral(node, parent)) {
+        node.parent = parent;
+
+        if (
+            ts.isObjectLiteralExpression(node) &&
+            isViolating(node) &&
+            !isDeclarativeConfigObjectLiteral(node, parent) &&
+            !isVueComponentOptionsObjectLiteralTs(node)
+        ) {
             nodes.push(node);
         }
 
@@ -382,6 +481,9 @@ function fixFile(filePath, program, emptyObjectImport, check) {
         counter += 1;
 
         let currentFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+
+        assignParents(currentFile);
+
         const props = collectProperties(node, currentFile);
         const typeStr = objectTypeString(node, program.getTypeChecker());
         const indent = "    ";

@@ -48,9 +48,9 @@ const processor = {
     preprocess(text, filename) {
         sourceLinesByFilename.set(filename, text.split(/\r?\n/));
 
-        // Do not pass `filename` here. ESLint would lint a virtual path
-        // (`file.ts/0_<absolute-path>`) that TypeScript projectService cannot resolve.
-        return [text];
+        // Keep the real filename so typed linting resolves against tsconfig (virtual
+        // `file.ts/0_<absolute-path>` paths break projectService).
+        return [{ text, filename }];
     },
 
     postprocess(messages, filename) {

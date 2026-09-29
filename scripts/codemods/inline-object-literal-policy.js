@@ -79,6 +79,74 @@ function isDeclarativeConfigObjectLiteral(node) {
 }
 
 /**
+ * Returns the Vue Options API root object when node lives under export default or defineComponent.
+ *
+ * @param {import("estree").Node} node Object literal or any descendant.
+ * @returns {import("estree").ObjectExpression | null} Root options object.
+ */
+function getVueComponentOptionsRoot(node) {
+    let current = node;
+
+    while (current) {
+        if (current.type === "ExportDefaultDeclaration") {
+            const decl = current.declaration;
+
+            if (decl?.type === "ObjectExpression") {
+                return decl;
+            }
+
+            if (
+                decl?.type === "CallExpression" &&
+                decl.callee?.type === "Identifier" &&
+                decl.callee.name === "defineComponent" &&
+                decl.arguments[0]?.type === "ObjectExpression"
+            ) {
+                return decl.arguments[0];
+            }
+        }
+
+        if (
+            current.type === "CallExpression" &&
+            current.callee?.type === "Identifier" &&
+            current.callee.name === "defineComponent" &&
+            current.arguments[0]?.type === "ObjectExpression"
+        ) {
+            return current.arguments[0];
+        }
+
+        current = current.parent;
+    }
+
+    return null;
+}
+
+/**
+ * Returns true when node is the Vue component options object or nested inside it.
+ *
+ * @param {import("estree").ObjectExpression} node Object literal expression.
+ * @returns {boolean} True when the literal is component definition config, not a domain DTO.
+ */
+function isVueComponentOptionsObjectLiteral(node) {
+    const root = getVueComponentOptionsRoot(node);
+
+    if (!root) {
+        return false;
+    }
+
+    let current = node;
+
+    while (current) {
+        if (current === root) {
+            return true;
+        }
+
+        current = current.parent;
+    }
+
+    return false;
+}
+
+/**
  * Returns whether an object literal member is shorthand-only.
  *
  * @param prop Object literal member.
@@ -117,5 +185,6 @@ module.exports = {
     isShorthandProperty,
     isViolatingInlineObjectLiteral,
     isDeclarativeConfigObjectLiteral,
-    isDeclarativeConfigObjectLiteralForArgument
+    isDeclarativeConfigObjectLiteralForArgument,
+    isVueComponentOptionsObjectLiteral
 };

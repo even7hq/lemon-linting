@@ -374,7 +374,12 @@ runRule("no-inline-object-literal", () => {
             "fn({ a, b });",
             `function withYargs(y: { positional: (n: string, o: object) => unknown }) {
                 return y.positional("deployId", { type: "string", describe: "Deploy ID" });
-            }`
+            }`,
+            `export default {
+                components: { BaseInput, FormInputWrapper, ValidationError },
+                inheritAttrs: false,
+                props: { label: { type: String } }
+            };`
         ],
 
         invalid: [
