@@ -5,6 +5,26 @@
 /**
  * Method names whose second argument is declarative CLI/schema config (yargs, etc.).
  */
+/**
+ * Sequelize-style model methods whose first argument is a query/options object.
+ */
+const ORM_QUERY_METHOD_NAMES = new Set([
+    "findOne",
+    "findAll",
+    "findByPk",
+    "findOrCreate",
+    "findAndCountAll",
+    "create",
+    "bulkCreate",
+    "update",
+    "destroy",
+    "upsert",
+    "count",
+    "max",
+    "min",
+    "sum"
+]);
+
 const CLI_BUILDER_METHOD_NAMES = new Set([
     "positional",
     "option",
@@ -126,6 +146,145 @@ function getVueComponentOptionsRoot(node) {
  * @param {import("estree").ObjectExpression} node Object literal expression.
  * @returns {boolean} True when the literal is component definition config, not a domain DTO.
  */
+/**
+ * Returns true when ancestor contains node in the AST parent chain.
+ *
+ * @param {import("estree").Node} ancestor Possible ancestor.
+ * @param {import("estree").Node} node Descendant candidate.
+ * @returns {boolean} True when ancestor contains node.
+ */
+function isNodeUnderAncestor(ancestor, node) {
+    let current = node;
+
+    while (current) {
+        if (current === ancestor) {
+            return true;
+        }
+
+        current = current.parent;
+    }
+
+    return false;
+}
+
+/**
+ * Returns true when value is a string literal property value.
+ *
+ * @param {import("estree").Expression | import("estree").Pattern} value Property value.
+ * @returns {boolean} True for string literals.
+ */
+function isStaticStringLiteralValue(value) {
+    return value.type === "Literal" && typeof value.value === "string";
+}
+
+/**
+ * Returns true for fixed string-to-string lookup tables (API catalogs, labels).
+ *
+ * @param {import("estree").ObjectExpression} node Object literal expression.
+ * @returns {boolean} True when every property maps a string key to a string literal.
+ */
+function isStaticStringMapObjectLiteral(node) {
+    if (node.properties.length === 0) {
+        return false;
+    }
+
+    for (const prop of node.properties) {
+        if (prop.type !== "Property" || prop.method || prop.kind !== "init") {
+            return false;
+        }
+
+        if (!isStaticStringLiteralValue(prop.value)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Returns true when call is Model.findOne(...) or similar Sequelize API.
+ *
+ * @param {import("estree").CallExpression} callExpression ORM call.
+ * @returns {boolean} True for known query methods.
+ */
+function isOrmModelQueryCall(callExpression) {
+    const methodName = getCallMemberName(callExpression.callee);
+
+    if (!methodName) {
+        return false;
+    }
+
+    return ORM_QUERY_METHOD_NAMES.has(methodName);
+}
+
+/**
+ * Returns true for query/options objects passed to Sequelize model methods.
+ *
+ * @param {import("estree").ObjectExpression} node Object literal expression.
+ * @returns {boolean} True when nested in findOne/create options.
+ */
+function isOrmQueryConfigObjectLiteral(node) {
+    let current = node;
+
+    while (current) {
+        const parent = current.parent;
+
+        if (parent?.type === "CallExpression" && isOrmModelQueryCall(parent)) {
+            const options = parent.arguments[0];
+
+            if (options && isNodeUnderAncestor(options, node)) {
+                return true;
+            }
+        }
+
+        current = parent;
+    }
+
+    return false;
+}
+
+/**
+ * Returns true for `{ statusCode: ... }` objects passed to Error constructors.
+ *
+ * @param {import("estree").ObjectExpression} node Object literal expression.
+ * @returns {boolean} True when used as Error/TreatedError constructor argument.
+ */
+function isErrorConstructorMetadataObject(node) {
+    const parent = node.parent;
+
+    if (parent?.type !== "NewExpression") {
+        return false;
+    }
+
+    const callee = parent.callee;
+
+    if (callee?.type !== "Identifier") {
+        return false;
+    }
+
+    if (callee.name !== "TreatedError" && callee.name !== "Error") {
+        return false;
+    }
+
+    return parent.arguments.includes(node);
+}
+
+/**
+ * Returns true when inline-object policy should not apply to this literal.
+ *
+ * @param {import("estree").ObjectExpression} node Object literal expression.
+ * @returns {boolean} True when the literal is exempt.
+ */
+function isExemptInlineObjectLiteral(node) {
+    return (
+        isDeclarativeConfigObjectLiteral(node) ||
+        isVueComponentOptionsObjectLiteral(node) ||
+        isStaticStringMapObjectLiteral(node) ||
+        isOrmQueryConfigObjectLiteral(node) ||
+        isErrorConstructorMetadataObject(node)
+    );
+}
+
 function isVueComponentOptionsObjectLiteral(node) {
     const root = getVueComponentOptionsRoot(node);
 
@@ -182,9 +341,14 @@ function isViolatingInlineObjectLiteral(properties, maxShorthandProperties) {
 
 module.exports = {
     CLI_BUILDER_METHOD_NAMES,
+    ORM_QUERY_METHOD_NAMES,
     isShorthandProperty,
     isViolatingInlineObjectLiteral,
     isDeclarativeConfigObjectLiteral,
     isDeclarativeConfigObjectLiteralForArgument,
-    isVueComponentOptionsObjectLiteral
+    isVueComponentOptionsObjectLiteral,
+    isStaticStringMapObjectLiteral,
+    isOrmQueryConfigObjectLiteral,
+    isErrorConstructorMetadataObject,
+    isExemptInlineObjectLiteral
 };

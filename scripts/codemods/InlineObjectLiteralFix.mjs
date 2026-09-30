@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
-import { isDeclarativeConfigObjectLiteralForArgument } from "./inline-object-literal-policy.js";
+import { isDeclarativeConfigObjectLiteralForArgument, ORM_QUERY_METHOD_NAMES } from "./inline-object-literal-policy.js";
 
 /**
  * Maximum shorthand properties allowed inline (must match inline-object-literal-policy).
@@ -116,6 +116,125 @@ function isVueComponentOptionsObjectLiteralTs(node) {
     }
 
     return false;
+}
+
+/**
+ * Returns true for fixed string-to-string lookup tables.
+ *
+ * @param node Object literal expression.
+ * @returns True when every property maps to a string literal.
+ */
+function isStaticStringMapObjectLiteralTs(node) {
+    if (!ts.isObjectLiteralExpression(node)) {
+        return false;
+    }
+
+    if (node.properties.length === 0) {
+        return false;
+    }
+
+    for (const prop of node.properties) {
+        if (ts.isSpreadAssignment(prop) || ts.isMethodDeclaration(prop)) {
+            return false;
+        }
+
+        if (ts.isPropertyAssignment(prop)) {
+            if (!ts.isStringLiteral(prop.initializer)) {
+                return false;
+            }
+
+            continue;
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Returns true when call is Model.findOne(...) or similar Sequelize API.
+ *
+ * @param callExpression ORM call.
+ * @returns True for known query methods.
+ */
+function isOrmModelQueryCallTs(callExpression) {
+    const methodName = getTsCallMemberName(callExpression.expression);
+
+    if (!methodName) {
+        return false;
+    }
+
+    return ORM_QUERY_METHOD_NAMES.has(methodName);
+}
+
+/**
+ * Returns true for query/options objects passed to Sequelize model methods.
+ *
+ * @param node Object literal expression.
+ * @returns True when nested in findOne/create options.
+ */
+function isOrmQueryConfigObjectLiteralTs(node) {
+    let current = node;
+
+    while (current) {
+        const parent = current.parent;
+
+        if (parent && ts.isCallExpression(parent) && isOrmModelQueryCallTs(parent)) {
+            const options = parent.arguments[0];
+
+            if (options && isUnderTsNode(options, node)) {
+                return true;
+            }
+        }
+
+        current = parent;
+    }
+
+    return false;
+}
+
+/**
+ * Returns true for objects passed to Error/TreatedError constructors.
+ *
+ * @param node Object literal expression.
+ * @returns True when used as constructor metadata.
+ */
+function isErrorConstructorMetadataObjectTs(node) {
+    const parent = node.parent;
+
+    if (!parent || !ts.isNewExpression(parent)) {
+        return false;
+    }
+
+    if (!ts.isIdentifier(parent.expression)) {
+        return false;
+    }
+
+    const name = parent.expression.text;
+
+    if (name !== "TreatedError" && name !== "Error") {
+        return false;
+    }
+
+    return parent.arguments.includes(node);
+}
+
+/**
+ * Returns true when the codemod must not rewrite this object literal.
+ *
+ * @param node Object literal expression.
+ * @param parent Immediate parent node.
+ * @returns True when the literal is exempt.
+ */
+function isExemptInlineObjectLiteralTs(node, parent) {
+    return (
+        isDeclarativeConfigObjectLiteral(node, parent) ||
+        isVueComponentOptionsObjectLiteralTs(node) ||
+        isStaticStringMapObjectLiteralTs(node) ||
+        isOrmQueryConfigObjectLiteralTs(node) ||
+        isErrorConstructorMetadataObjectTs(node)
+    );
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -357,12 +476,7 @@ function collectViolations(sourceFile) {
     function visit(node, parent) {
         node.parent = parent;
 
-        if (
-            ts.isObjectLiteralExpression(node) &&
-            isViolating(node) &&
-            !isDeclarativeConfigObjectLiteral(node, parent) &&
-            !isVueComponentOptionsObjectLiteralTs(node)
-        ) {
+        if (ts.isObjectLiteralExpression(node) && isViolating(node) && !isExemptInlineObjectLiteralTs(node, parent)) {
             nodes.push(node);
         }
 

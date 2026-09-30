@@ -1,7 +1,6 @@
 const {
     isViolatingInlineObjectLiteral,
-    isDeclarativeConfigObjectLiteral,
-    isVueComponentOptionsObjectLiteral
+    isExemptInlineObjectLiteral
 } = require("../scripts/codemods/inline-object-literal-policy");
 
 /**
@@ -57,7 +56,7 @@ module.exports = {
 
         return {
             ObjectExpression(node) {
-                if (isDeclarativeConfigObjectLiteral(node) || isVueComponentOptionsObjectLiteral(node)) {
+                if (isExemptInlineObjectLiteral(node)) {
                     return;
                 }
 

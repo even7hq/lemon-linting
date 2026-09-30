@@ -379,7 +379,13 @@ runRule("no-inline-object-literal", () => {
                 components: { BaseInput, FormInputWrapper, ValidationError },
                 inheritAttrs: false,
                 props: { label: { type: String } }
-            };`
+            };`,
+            `const routes = {
+                "POST /foo": "does something",
+                "GET /bar": "does something else"
+            };`,
+            `Model.findOne({ where: { tenantId: id, cpf } });`,
+            `throw new TreatedError("CODE", "msg", { statusCode: 400 });`
         ],
 
         invalid: [
