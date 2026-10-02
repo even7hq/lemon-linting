@@ -40,6 +40,7 @@ const rules = {
     "remove-unused-vars": require("../../custom/remove-unused-vars.js"),
     "require-jsdoc-block-indent": require("../../custom/require-jsdoc-block-indent.js"),
     "lua/consistent-doc-prefix": require("../../custom/lua/consistent-doc-prefix.js"),
+    "lua/require-jsdoc": require("../../custom/lua/require-jsdoc.js"),
     "no-inline-object-literal": require("../../custom/no-inline-object-literal.js"),
     "max-lines": require("../../custom/max-lines.js"),
     "require-jsdoc-param-returns": require("../../custom/require-jsdoc-param-returns.js")
@@ -459,6 +460,31 @@ runRule("no-inline-object-literal", () => {
                     user: { id: 1, name: "a" }
                 };`,
                 errors: [{ message: /Object literals whose values are all literals are not allowed/ }]
+            }
+        ]
+    });
+});
+
+runRule("lua/require-jsdoc", () => {
+    luaRuleTester.run("lua/require-jsdoc", rules["lua/require-jsdoc"], {
+        valid: [
+            `--- Inserts rows in batches.
+--- @param rows table Array of decoded row tables.
+--- @returns number, number Inserted and deferred counts.
+function insert_in_batches(self, rows)
+    return 0, 0
+end`
+        ],
+
+        invalid: [
+            {
+                code: `--- Does work.
+--- @returns number Result.
+function work(value)
+    return value
+end`,
+
+                errors: [{ message: /Missing @param tag for parameter "value"/ }]
             }
         ]
     });

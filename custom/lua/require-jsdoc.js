@@ -78,6 +78,10 @@ module.exports = {
          * @returns True when @param documentation is not required.
          */
         function isIgnoredParamName(name) {
+            if (name === "self") {
+                return true;
+            }
+
             return /^_{1,3}$/.test(name);
         }
 
