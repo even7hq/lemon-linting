@@ -354,7 +354,7 @@ Testes: `yarn test` na raiz do pacote.
 **Legibilidade**
 
 - `local/max-inline-calls` - limita encadeamento de chamadas inline
-- `local/no-inline-object-literal` - proíbe objetos inline de domínio/DTO, exceto `{}` ou até 2 props shorthand (`{ a, b }`). **Isento:** CLI (`yargs`), Vue Options API, **mapas estáticos string→string** (catálogos), **Sequelize** (`findOne({ where: ... })`, `create({ ... })`), metadata de `TreatedError`/`Error`. **Sem autofix no ESLint** - use o codemod `scripts/codemods/InlineObjectLiteralFix.mjs` (`yarn codemod:inline-object-literal --import-from "<módulo-emptyObject>" [arquivos]`). Configure `emptyObjectImport` na regra para o comando aparecer no aviso do ESLint.
+- `local/no-inline-object-literal` - proíbe objeto **só com literais** em `return` / `const x =` / atribuição (DTO montado na hora). **Fora de escopo:** argumento de chamada (`observe(el, { childList: true })`), TypeBox, CLI, Vue Options API, mapas string→string, Sequelize, `TreatedError`/`Error`. **Sem autofix no ESLint** - codemod `scripts/codemods/InlineObjectLiteralFix.mjs`.
 - `local/prefer-else-newline-if` - `else if` na linha seguinte
 - `local/blank-line-after-block-prop` - linha em branco após props de bloco
 

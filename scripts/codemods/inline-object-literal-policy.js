@@ -2,6 +2,8 @@
  * Shared policy for local/no-inline-object-literal (ESTree and TypeScript codemod).
  */
 
+const ts = require("typescript");
+
 /**
  * Method names whose second argument is declarative CLI/schema config (yargs, etc.).
  */
@@ -398,17 +400,135 @@ function isShorthandProperty(prop) {
 }
 
 /**
+ * Returns true when node is a call/new expression whose arguments include child.
+ *
+ * @param parent Possible call or new expression.
+ * @param child Argument node candidate.
+ * @returns {boolean} True when child is a direct argument.
+ */
+function isCallOrNewArgument(parent, child) {
+    if (!parent?.arguments?.includes(child)) {
+        return false;
+    }
+
+    return (
+        parent.type === "CallExpression" ||
+        parent.type === "NewExpression" ||
+        ts.isCallExpression(parent) ||
+        ts.isNewExpression(parent)
+    );
+}
+
+/**
+ * Returns true when node is a return statement returning child.
+ *
+ * @param parent Possible return statement.
+ * @param child Returned expression candidate.
+ * @returns {boolean} True when child is the returned value.
+ */
+function isReturnOfExpression(parent, child) {
+    if (!ts.isReturnStatement(parent) && parent.type !== "ReturnStatement") {
+        return false;
+    }
+
+    const returned = parent.argument ?? parent.expression;
+
+    return returned === child;
+}
+
+/**
+ * Returns true when node initializes a variable with child.
+ *
+ * @param parent Possible declarator or declaration.
+ * @param child Initializer candidate.
+ * @returns {boolean} True when child is the initializer.
+ */
+function isVariableInitializer(parent, child) {
+    if (parent.type === "VariableDeclarator" && parent.init === child) {
+        return true;
+    }
+
+    if (ts.isVariableDeclaration(parent) && parent.initializer === child) {
+        return true;
+    }
+
+    if (parent.type === "VariableDeclaration" && parent.initializer === child) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Returns true when an arrow function expression body is child.
+ *
+ * @param parent Possible arrow function.
+ * @param child Body expression candidate.
+ * @returns {boolean} True when child is the concise body.
+ */
+function isArrowFunctionExpressionBody(parent, child) {
+    if (!ts.isArrowFunction(parent) && parent.type !== "ArrowFunctionExpression") {
+        return false;
+    }
+
+    return parent.expression === child || parent.body === child;
+}
+
+/**
+ * Returns true when a literal-only object is a direct inline domain payload (return, assign, var init).
+ *
+ * Nested shapes (`session: { token: null }`, TypeBox fields, API flags) are out of scope.
+ * Literal-only objects passed as call/new arguments are API options, not DTO payloads.
+ *
+ * @param {import("estree").ObjectExpression} node Object literal expression.
+ * @returns {boolean} True when the literal is inline domain data.
+ */
+function isLiteralOnlyObjectUsedAsDomainData(node) {
+    const parent = node.parent;
+
+    if (!parent) {
+        return false;
+    }
+
+    if (isCallOrNewArgument(parent, node)) {
+        return false;
+    }
+
+    if (isReturnOfExpression(parent, node)) {
+        return true;
+    }
+
+    if (isVariableInitializer(parent, node)) {
+        return true;
+    }
+
+    if (parent.type === "AssignmentExpression" && parent.right === node) {
+        return true;
+    }
+
+    if (isArrowFunctionExpressionBody(parent, node)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Returns whether an object literal must be rewritten by the codemod.
  *
  * Only objects whose values are all primitive literals are in scope. Expressions
- * (`session.token`, `n ?? 0`) and nested objects are not. Nested objects are judged alone.
+ * (`session.token`, `n ?? 0`). Nested literal-only objects are never flagged.
  *
- * @param properties Object members.
+ * @param {import("estree").ObjectExpression} node Object literal expression.
  * @param _maxShorthandProperties Kept for rule option compatibility. Shorthand objects are never literal-only.
  * @returns True when the object literal violates the inline policy.
  */
-function isViolatingInlineObjectLiteral(properties, _maxShorthandProperties) {
-    return isLiteralOnlyInlineObject(properties);
+function isViolatingInlineObjectLiteral(node, _maxShorthandProperties) {
+    if (!isLiteralOnlyInlineObject(node.properties)) {
+        return false;
+    }
+
+    return isLiteralOnlyObjectUsedAsDomainData(node);
 }
 
 module.exports = {
@@ -417,6 +537,11 @@ module.exports = {
     isShorthandProperty,
     isPrimitiveLiteralExpression,
     isLiteralOnlyInlineObject,
+    isCallOrNewArgument,
+    isReturnOfExpression,
+    isVariableInitializer,
+    isArrowFunctionExpressionBody,
+    isLiteralOnlyObjectUsedAsDomainData,
     isViolatingInlineObjectLiteral,
     isDeclarativeConfigObjectLiteral,
     isDeclarativeConfigObjectLiteralForArgument,

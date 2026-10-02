@@ -60,7 +60,7 @@ module.exports = {
                     return;
                 }
 
-                if (!isViolatingInlineObjectLiteral(node.properties, maxShorthandProperties)) {
+                if (!isViolatingInlineObjectLiteral(node, maxShorthandProperties)) {
                     return;
                 }
 
@@ -82,5 +82,5 @@ module.exports = {
 };
 
 module.exports.isAllowedInlineObject = function isAllowedInlineObject(node, maxShorthandProperties) {
-    return !isViolatingInlineObjectLiteral(node.properties, maxShorthandProperties);
+    return !isViolatingInlineObjectLiteral(node, maxShorthandProperties);
 };

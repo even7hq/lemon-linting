@@ -442,6 +442,17 @@ runRule("no-inline-object-literal", () => {
                 id: UserState.id,
                 name: UserState.name ?? "",
                 email: UserState.email ?? ""
+            };`,
+            `observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });`,
+            `export const UserState = {
+                id: null,
+                session: {
+                    token: null,
+                    expiresIn: null
+                }
             };`
         ],
 
@@ -452,13 +463,6 @@ runRule("no-inline-object-literal", () => {
             },
             {
                 code: "const explicit = { success: true };",
-                errors: [{ message: /Object literals whose values are all literals are not allowed/ }]
-            },
-            {
-                code: `const nested = {
-                    ok: true,
-                    user: { id: 1, name: "a" }
-                };`,
                 errors: [{ message: /Object literals whose values are all literals are not allowed/ }]
             }
         ]
