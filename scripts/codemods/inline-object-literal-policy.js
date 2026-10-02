@@ -281,7 +281,8 @@ function isExemptInlineObjectLiteral(node) {
         isVueComponentOptionsObjectLiteral(node) ||
         isStaticStringMapObjectLiteral(node) ||
         isOrmQueryConfigObjectLiteral(node) ||
-        isErrorConstructorMetadataObject(node)
+        isErrorConstructorMetadataObject(node) ||
+        isTypeBoxSchemaConfigObjectLiteral(node)
     );
 }
 
@@ -306,6 +307,82 @@ function isVueComponentOptionsObjectLiteral(node) {
 }
 
 /**
+ * Returns true when a property value is a primitive literal (string, number, boolean, null, bigint, regex).
+ *
+ * Nested objects, calls, and other expressions are not literals. Each nested object is checked on its own.
+ *
+ * @param {import("estree").Expression | import("estree").Pattern | undefined} value Property value.
+ * @returns {boolean} True when the value node is a primitive literal.
+ */
+function isPrimitiveLiteralExpression(value) {
+    if (!value || value.type !== "Literal") {
+        return false;
+    }
+
+    if (value.regex || typeof value.bigint === "string") {
+        return true;
+    }
+
+    if (value.value === null) {
+        return true;
+    }
+
+    const valueType = typeof value.value;
+
+    return valueType === "string" || valueType === "number" || valueType === "boolean" || valueType === "bigint";
+}
+
+/**
+ * Returns true when every property value of this object is a primitive literal.
+ *
+ * @param {import("estree").ObjectExpression["properties"]} properties Object members.
+ * @returns {boolean} True when the object is inline data made only of literals.
+ */
+function isLiteralOnlyInlineObject(properties) {
+    if (properties.length === 0) {
+        return false;
+    }
+
+    for (const prop of properties) {
+        if (prop.type !== "Property" || prop.method === true || prop.shorthand === true || prop.kind !== "init") {
+            return false;
+        }
+
+        if (!isPrimitiveLiteralExpression(prop.value)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Returns true for object literals passed to TypeBox `Type.*` builders.
+ *
+ * @param {import("estree").ObjectExpression} node Object literal expression.
+ * @returns {boolean} True when the literal is schema definition, not a domain DTO.
+ */
+function isTypeBoxSchemaConfigObjectLiteral(node) {
+    const parent = node.parent;
+
+    if (parent?.type !== "CallExpression") {
+        return false;
+    }
+
+    const callee = parent.callee;
+
+    if (callee?.type !== "MemberExpression" || callee.computed) {
+        return false;
+    }
+
+    if (callee.object?.type !== "Identifier" || callee.object.name !== "Type") {
+        return false;
+    }
+
+    return parent.arguments.includes(node);
+}
+
+/**
  * Returns whether an object literal member is shorthand-only.
  *
  * @param prop Object literal member.
@@ -323,26 +400,23 @@ function isShorthandProperty(prop) {
 /**
  * Returns whether an object literal must be rewritten by the codemod.
  *
+ * Only objects whose values are all primitive literals are in scope. Expressions
+ * (`session.token`, `n ?? 0`) and nested objects are not. Nested objects are judged alone.
+ *
  * @param properties Object members.
- * @param maxShorthandProperties Maximum shorthand-only properties allowed inline.
+ * @param _maxShorthandProperties Kept for rule option compatibility. Shorthand objects are never literal-only.
  * @returns True when the object literal violates the inline policy.
  */
-function isViolatingInlineObjectLiteral(properties, maxShorthandProperties) {
-    if (properties.length === 0) {
-        return false;
-    }
-
-    if (properties.length > maxShorthandProperties) {
-        return true;
-    }
-
-    return !properties.every(isShorthandProperty);
+function isViolatingInlineObjectLiteral(properties, _maxShorthandProperties) {
+    return isLiteralOnlyInlineObject(properties);
 }
 
 module.exports = {
     CLI_BUILDER_METHOD_NAMES,
     ORM_QUERY_METHOD_NAMES,
     isShorthandProperty,
+    isPrimitiveLiteralExpression,
+    isLiteralOnlyInlineObject,
     isViolatingInlineObjectLiteral,
     isDeclarativeConfigObjectLiteral,
     isDeclarativeConfigObjectLiteralForArgument,
@@ -350,5 +424,6 @@ module.exports = {
     isStaticStringMapObjectLiteral,
     isOrmQueryConfigObjectLiteral,
     isErrorConstructorMetadataObject,
+    isTypeBoxSchemaConfigObjectLiteral,
     isExemptInlineObjectLiteral
 };

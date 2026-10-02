@@ -10,7 +10,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
-import { isDeclarativeConfigObjectLiteralForArgument, ORM_QUERY_METHOD_NAMES } from "./inline-object-literal-policy.js";
+import {
+    isDeclarativeConfigObjectLiteralForArgument,
+    isViolatingInlineObjectLiteral,
+    ORM_QUERY_METHOD_NAMES
+} from "./inline-object-literal-policy.js";
 
 /**
  * Maximum shorthand properties allowed inline (must match inline-object-literal-policy).
@@ -221,6 +225,150 @@ function isErrorConstructorMetadataObjectTs(node) {
 }
 
 /**
+ * Maps a TypeScript property value to an ESTree-like literal node when it is a primitive literal.
+ *
+ * @param expression Property value expression.
+ * @returns Literal-shaped node, or null when the value is not a primitive literal.
+ */
+function toPolicyLiteralValue(expression) {
+    if (ts.isStringLiteral(expression) || ts.isNoSubstitutionTemplateLiteral(expression)) {
+        return {
+            type: "Literal",
+            value: expression.text
+        };
+    }
+
+    if (ts.isNumericLiteral(expression)) {
+        return {
+            type: "Literal",
+            value: Number(expression.text)
+        };
+    }
+
+    if (expression.kind === ts.SyntaxKind.TrueKeyword) {
+        return {
+            type: "Literal",
+            value: true
+        };
+    }
+
+    if (expression.kind === ts.SyntaxKind.FalseKeyword) {
+        return {
+            type: "Literal",
+            value: false
+        };
+    }
+
+    if (expression.kind === ts.SyntaxKind.NullKeyword) {
+        return {
+            type: "Literal",
+            value: null
+        };
+    }
+
+    if (ts.isBigIntLiteral(expression)) {
+        return {
+            type: "Literal",
+            value: BigInt(expression.text.replace(/n$/, ""))
+        };
+    }
+
+    if (ts.isRegularExpressionLiteral(expression)) {
+        return {
+            type: "Literal",
+            value: null,
+            regex: true
+        };
+    }
+
+    return null;
+}
+
+/**
+ * Builds ESTree-shaped properties for shared inline-object policy scope checks.
+ *
+ * @param properties TypeScript object literal members.
+ * @returns Property list understood by inline-object-literal-policy.
+ */
+function toPolicyScopeProperties(properties) {
+    const mapped = [];
+
+    for (const prop of properties) {
+        if (ts.isSpreadAssignment(prop)) {
+            mapped.push({ type: "SpreadElement" });
+
+            continue;
+        }
+
+        if (ts.isMethodDeclaration(prop)) {
+            mapped.push({
+                type: "Property",
+                method: true
+            });
+
+            continue;
+        }
+
+        if (ts.isShorthandPropertyAssignment(prop)) {
+            mapped.push({
+                type: "Property",
+                shorthand: true,
+                kind: "init",
+                method: false
+            });
+
+            continue;
+        }
+
+        if (ts.isPropertyAssignment(prop)) {
+            const literalValue = toPolicyLiteralValue(prop.initializer);
+
+            mapped.push({
+                type: "Property",
+                shorthand: false,
+                kind: "init",
+                method: false,
+                value: literalValue ?? {
+                    type: "Identifier"
+                }
+            });
+
+            continue;
+        }
+
+        mapped.push({ type: "Unknown" });
+    }
+
+    return mapped;
+}
+
+/**
+ * Returns true for object literals passed to TypeBox `Type.*` builders.
+ *
+ * @param node Object literal expression.
+ * @returns True when the literal is schema definition.
+ */
+function isTypeBoxSchemaConfigObjectLiteralTs(node) {
+    const parent = node.parent;
+
+    if (!parent || !ts.isCallExpression(parent)) {
+        return false;
+    }
+
+    const expression = parent.expression;
+
+    if (!ts.isPropertyAccessExpression(expression)) {
+        return false;
+    }
+
+    if (!ts.isIdentifier(expression.expression) || expression.expression.text !== "Type") {
+        return false;
+    }
+
+    return parent.arguments.includes(node);
+}
+
+/**
  * Returns true when the codemod must not rewrite this object literal.
  *
  * @param node Object literal expression.
@@ -233,7 +381,8 @@ function isExemptInlineObjectLiteralTs(node, parent) {
         isVueComponentOptionsObjectLiteralTs(node) ||
         isStaticStringMapObjectLiteralTs(node) ||
         isOrmQueryConfigObjectLiteralTs(node) ||
-        isErrorConstructorMetadataObjectTs(node)
+        isErrorConstructorMetadataObjectTs(node) ||
+        isTypeBoxSchemaConfigObjectLiteralTs(node)
     );
 }
 
@@ -332,17 +481,7 @@ function findEnclosingStatement(node) {
  * @returns True when the literal violates the inline policy.
  */
 function isViolating(node) {
-    const properties = node.properties;
-
-    if (properties.length === 0) {
-        return false;
-    }
-
-    if (properties.length > MAX_SHORTHAND) {
-        return true;
-    }
-
-    return !properties.every((prop) => ts.isShorthandPropertyAssignment(prop));
+    return isViolatingInlineObjectLiteral(toPolicyScopeProperties(node.properties), MAX_SHORTHAND);
 }
 
 /**
