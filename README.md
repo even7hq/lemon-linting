@@ -347,7 +347,7 @@ Plugin interno em [`custom/`](./custom/):
 - `local/vue-no-style-block` - proíbe `<style>` em Vue SFC
 - `local/no-form-data-consumer` - proíbe `FormDataConsumer` no admin
 - `local/no-sql-placeholder-fk` - proíbe `*Id = 1` em SQL
-- `max-lines` (700) - tamanho máximo de arquivo
+- `local/max-lines` (700) - tamanho máximo de arquivo; **não conta** linha em branco nem linha só de comentário (incl. `<!-- -->` em `.vue`)
 
 Testes: `yarn test` na raiz do pacote.
 

@@ -129,8 +129,9 @@ const config = [
             // Autofixable: removes unused variable/type/interface/enum declarations
             ...localRules,
 
-            // Max file size (rule: max-file-size)
-            "max-lines": ["error", { max: 700, skipBlankLines: true, skipComments: true }],
+            // Max file size (rule: max-file-size) - local rule always skips blank + comment-only lines
+            "max-lines": "off",
+            "local/max-lines": ["error", { max: 700 }],
 
             // Allow extra boolean casting
             "no-extra-boolean-cast": "off",

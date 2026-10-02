@@ -41,6 +41,7 @@ const rules = {
     "require-jsdoc-block-indent": require("../../custom/require-jsdoc-block-indent.js"),
     "lua/consistent-doc-prefix": require("../../custom/lua/consistent-doc-prefix.js"),
     "no-inline-object-literal": require("../../custom/no-inline-object-literal.js"),
+    "max-lines": require("../../custom/max-lines.js"),
     "require-jsdoc-param-returns": require("../../custom/require-jsdoc-param-returns.js")
 };
 
@@ -365,6 +366,36 @@ runRule("require-jsdoc-param-returns", () => {
     });
 });
 
+runRule("max-lines", () => {
+    tsRuleTester.run("max-lines", rules["max-lines"], {
+        valid: [
+            {
+                code: [
+                    "// header",
+                    "",
+                    "/**",
+                    " * Block doc",
+                    " */",
+                    "",
+                    "const only = 1;"
+                ].join("\n"),
+
+                options: [{ max: 3 }],
+                filename: "Sample.ts"
+            }
+        ],
+
+        invalid: [
+            {
+                code: "const a = 1;\nconst b = 2;\nconst c = 3;\nconst d = 4;",
+                options: [{ max: 3 }],
+                filename: "TooLong.ts",
+                errors: [{ message: /blank lines and comments are not counted/ }]
+            }
+        ]
+    });
+});
+
 runRule("no-inline-object-literal", () => {
     tsRuleTester.run("no-inline-object-literal", rules["no-inline-object-literal"], {
         valid: [
@@ -385,21 +416,49 @@ runRule("no-inline-object-literal", () => {
                 "GET /bar": "does something else"
             };`,
             `Model.findOne({ where: { tenantId: id, cpf } });`,
-            `throw new TreatedError("CODE", "msg", { statusCode: 400 });`
+            `throw new TreatedError("CODE", "msg", { statusCode: 400 });`,
+            `export const Dto = Type.Object({
+                user: Type.Object({
+                    id: Type.Number({ title: "ID", summary: "User id.", example: 1 })
+                })
+            });`,
+            `const hook = createAuthHook({
+                http: axios,
+                url: "/user/sign-in",
+                getAuthUser: () => null,
+                async onSessionStart(data) {
+                    UserState.id = data.user.id;
+                }
+            });`,
+            "return { name: this.name, online: false };",
+            "const triple = { a, b, c };",
+            `await auth.saveSession({
+                token: sessionData.token,
+                expiresIn: sessionData.expiresIn ?? 0,
+                skipCheck: sessionData.skipCheck === true
+            });`,
+            `return {
+                id: UserState.id,
+                name: UserState.name ?? "",
+                email: UserState.email ?? ""
+            };`
         ],
 
         invalid: [
             {
-                code: "return { name: this.name, online: false };",
-                errors: [{ message: /Inline object literals are not allowed/ }]
-            },
-            {
-                code: "const triple = { a, b, c };",
-                errors: [{ message: /Inline object literals are not allowed/ }]
+                code: "return { name: \"a\", online: false };",
+                errors: [{ message: /Object literals whose values are all literals are not allowed/ }]
             },
             {
                 code: "const explicit = { success: true };",
-                errors: [{ message: /Inline object literals are not allowed/ }]
+                errors: [{ message: /Object literals whose values are all literals are not allowed/ }]
+            },
+            {
+                code: `const nested = {
+                    ok: true,
+                    user: { id: 1, name: "a" }
+                };`,
+                errors: [{ message: /Object literals whose values are all literals are not allowed/ }]
             }
         ]
     });

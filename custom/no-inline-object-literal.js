@@ -65,8 +65,8 @@ module.exports = {
                 }
 
                 const message =
-                    "Inline object literals are not allowed (use InlineObjectLiteralFix codemod or emptyObject + assignments, "
-                    + "or at most {{max}} shorthand properties e.g. `{ name, tel }`). Codemod: {{command}}";
+                    "Object literals whose values are all literals are not allowed "
+                    + "(use InlineObjectLiteralFix codemod or emptyObject + assignments). Codemod: {{command}}";
 
                 context.report({
                     node,
