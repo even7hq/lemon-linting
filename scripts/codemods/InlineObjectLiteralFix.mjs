@@ -12,8 +12,7 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import {
     isDeclarativeConfigObjectLiteralForArgument,
-    isLiteralOnlyInlineObject,
-    isLiteralOnlyObjectUsedAsDomainData,
+    isViolatingInlineObjectLiteral,
     ORM_QUERY_METHOD_NAMES
 } from "./inline-object-literal-policy.js";
 
@@ -482,11 +481,12 @@ function findEnclosingStatement(node) {
  * @returns True when the literal violates the inline policy.
  */
 function isViolating(node) {
-    if (!isLiteralOnlyInlineObject(toPolicyScopeProperties(node.properties))) {
-        return false;
-    }
+    const policyNode = {
+        type: "ObjectExpression",
+        properties: toPolicyScopeProperties(node.properties)
+    };
 
-    return isLiteralOnlyObjectUsedAsDomainData(node);
+    return isViolatingInlineObjectLiteral(policyNode, MAX_SHORTHAND);
 }
 
 /**

@@ -58,8 +58,8 @@ async function testCodemodRewritesReturnObject() {
         samplePath,
         `import { emptyObject } from "${importFrom}";
 
-export function build(): { name: string; online: boolean } {
-    return { name: "a", online: false };
+export function build(name: string, online: boolean, id: number) {
+    return { name, online, id };
 }
 `
     );
@@ -76,10 +76,11 @@ export function build(): { name: string; online: boolean } {
     const out = fs.readFileSync(samplePath, "utf8");
 
     assert.match(out, /emptyObject</);
-    assert.match(out, /draftObj0\.name = "a"/);
-    assert.match(out, /draftObj0\.online = false/);
+    assert.match(out, /draftObj0\.name = name/);
+    assert.match(out, /draftObj0\.online = online/);
+    assert.match(out, /draftObj0\.id = id/);
     assert.match(out, /return draftObj0/);
-    assert.doesNotMatch(out, /return \{ name: "a", online: false \}/);
+    assert.doesNotMatch(out, /return \{ name, online, id \}/);
 
     fs.rmSync(dir, { recursive: true, force: true });
 }

@@ -514,21 +514,37 @@ function isLiteralOnlyObjectUsedAsDomainData(node) {
 }
 
 /**
- * Returns whether an object literal must be rewritten by the codemod.
+ * Returns true when every property is shorthand (`{ foo, bar }`).
  *
- * Only objects whose values are all primitive literals are in scope. Expressions
- * (`session.token`, `n ?? 0`). Nested literal-only objects are never flagged.
- *
- * @param {import("estree").ObjectExpression} node Object literal expression.
- * @param _maxShorthandProperties Kept for rule option compatibility. Shorthand objects are never literal-only.
- * @returns True when the object literal violates the inline policy.
+ * @param {import("estree").ObjectExpression["properties"]} properties Object members.
+ * @returns {boolean} True when all members are shorthand properties.
  */
-function isViolatingInlineObjectLiteral(node, _maxShorthandProperties) {
-    if (!isLiteralOnlyInlineObject(node.properties)) {
+function isShorthandOnlyObject(properties) {
+    if (properties.length === 0) {
         return false;
     }
 
-    return isLiteralOnlyObjectUsedAsDomainData(node);
+    return properties.every(isShorthandProperty);
+}
+
+/**
+ * Returns whether an object literal must be rewritten by the codemod.
+ *
+ * Targets packed shorthand bundles (`{ winners, users, abcd }`), not `{ count: 0 }` or mixed objects.
+ *
+ * @param {import("estree").ObjectExpression} node Object literal expression.
+ * @param maxShorthandProperties Maximum shorthand properties allowed inline (default 2).
+ * @returns True when the object literal violates the inline policy.
+ */
+function isViolatingInlineObjectLiteral(node, maxShorthandProperties) {
+    const maxInlineShorthandProperties = maxShorthandProperties ?? 2;
+    const properties = node.properties;
+
+    if (properties.length <= maxInlineShorthandProperties) {
+        return false;
+    }
+
+    return isShorthandOnlyObject(properties);
 }
 
 module.exports = {
@@ -537,6 +553,7 @@ module.exports = {
     isShorthandProperty,
     isPrimitiveLiteralExpression,
     isLiteralOnlyInlineObject,
+    isShorthandOnlyObject,
     isCallOrNewArgument,
     isReturnOfExpression,
     isVariableInitializer,

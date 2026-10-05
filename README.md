@@ -354,7 +354,7 @@ Testes: `yarn test` na raiz do pacote.
 **Legibilidade**
 
 - `local/max-inline-calls` - limita encadeamento de chamadas inline
-- `local/no-inline-object-literal` - proíbe objeto **só com literais** em `return` / `const x =` / atribuição (DTO montado na hora). **Fora de escopo:** argumento de chamada (`observe(el, { childList: true })`), TypeBox, CLI, Vue Options API, mapas string→string, Sequelize, `TreatedError`/`Error`. **Sem autofix no ESLint** - codemod `scripts/codemods/InlineObjectLiteralFix.mjs`.
+- `local/no-inline-object-literal` - proíbe objeto **só shorthand** com mais de 2 props (`{ winners, users, abcd }`); use `emptyObject` + assignments. **Não pega** `{ count: 0 }`, `{ name: x }`, configs de API, TypeBox, Vue, CLI, mapas string→string, Sequelize, `TreatedError`. Codemod `scripts/codemods/InlineObjectLiteralFix.mjs`.
 - `local/prefer-else-newline-if` - `else if` na linha seguinte
 - `local/blank-line-after-block-prop` - linha em branco após props de bloco
 

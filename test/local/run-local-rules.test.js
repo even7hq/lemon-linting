@@ -432,7 +432,7 @@ runRule("no-inline-object-literal", () => {
                 }
             });`,
             "return { name: this.name, online: false };",
-            "const triple = { a, b, c };",
+            "return { winnersCount: 0 };",
             `await auth.saveSession({
                 token: sessionData.token,
                 expiresIn: sessionData.expiresIn ?? 0,
@@ -458,12 +458,12 @@ runRule("no-inline-object-literal", () => {
 
         invalid: [
             {
-                code: "return { name: \"a\", online: false };",
-                errors: [{ message: /Object literals whose values are all literals are not allowed/ }]
+                code: "const triple = { a, b, c };",
+                errors: [{ message: /Inline shorthand object literals with more than/ }]
             },
             {
-                code: "const explicit = { success: true };",
-                errors: [{ message: /Object literals whose values are all literals are not allowed/ }]
+                code: "return { name, online, id };",
+                errors: [{ message: /Inline shorthand object literals with more than/ }]
             }
         ]
     });
