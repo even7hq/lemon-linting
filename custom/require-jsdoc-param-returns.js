@@ -68,6 +68,16 @@ module.exports = {
             return tags;
         }
 
+        /**
+         * Returns true when the doc block delegates to a super/base declaration.
+         *
+         * @param commentValue Inner text of the block comment (without `/**` delimiters).
+         * @returns True when @inheritdoc / @inheritDoc is present.
+         */
+        function hasInheritDocTag(commentValue) {
+            return /@inheritDoc\b/i.test(commentValue);
+        }
+
         function isVoidReturnType(returnTypeAnnotation) {
             if (!returnTypeAnnotation) {
                 return false;
@@ -109,6 +119,10 @@ module.exports = {
             const commentValue = commentNode.value;
             const tags = getTagNames(commentValue);
             const params = node.params ?? [];
+
+            if (hasInheritDocTag(commentValue)) {
+                return;
+            }
 
             if (!hasJsdocSummaryBeforeTags(commentValue)) {
                 context.report({

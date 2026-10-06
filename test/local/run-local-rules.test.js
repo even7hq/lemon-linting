@@ -346,6 +346,16 @@ runRule("require-jsdoc-param-returns", () => {
             function catalogKey(leafKey: string): string {
                 return leafKey;
             }
+            `,
+            `
+            class AlertKind {
+                /**
+                 * @inheritdoc
+                 */
+                public buildDataDetails(data: Record<string, unknown> | null): string[] {
+                    return [];
+                }
+            }
             `
         ],
 
