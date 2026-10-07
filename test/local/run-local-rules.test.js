@@ -44,7 +44,8 @@ const rules = {
     "no-inline-object-literal": require("../../custom/no-inline-object-literal.js"),
     "max-lines": require("../../custom/max-lines.js"),
     "require-jsdoc-param-returns": require("../../custom/require-jsdoc-param-returns.js"),
-    "require-jsdoc-on-upper-case-const": require("../../custom/require-jsdoc-on-upper-case-const.js")
+    "require-jsdoc-on-upper-case-const": require("../../custom/require-jsdoc-on-upper-case-const.js"),
+    "no-inline-type-import": require("../../custom/no-inline-type-import.js")
 };
 
 const tsRuleTester = new RuleTester({
@@ -182,6 +183,40 @@ runRule("require-jsdoc-on-upper-case-const", () => {
             {
                 code: "const CHANNEL_FILTERS = [];",
                 errors: [{ message: /must have a JSDoc comment/ }]
+            }
+        ]
+    });
+});
+
+runRule("no-inline-type-import", () => {
+    tsRuleTester.run("no-inline-type-import", rules["no-inline-type-import"], {
+        valid: [
+            `import type * as RedisModule from "@/core/helpers/Redis";
+            const { ensureRedisClient } = require("@/core/helpers/Redis") as typeof RedisModule;`
+        ],
+
+        invalid: [
+            {
+                code: `const { ensureRedisClient } = require("@/core/helpers/Redis") as typeof import("@/core/helpers/Redis");`,
+
+                output: `import type * as core_helpers_RedisModule from "@/core/helpers/Redis";
+const { ensureRedisClient } = require("@/core/helpers/Redis") as typeof core_helpers_RedisModule;`,
+
+                errors: [{ message: /Avoid inline/ }]
+            },
+            {
+                code: `const { a } = require("@/a") as typeof import("@/a");
+const { b } = require("@/b") as typeof import("@/b");`,
+
+                output: `import type * as aModule from "@/a";
+import type * as bModule from "@/b";
+const { a } = require("@/a") as typeof aModule;
+const { b } = require("@/b") as typeof bModule;`,
+
+                errors: [
+                    { message: /Avoid inline/ },
+                    { message: /Avoid inline/ }
+                ]
             }
         ]
     });
