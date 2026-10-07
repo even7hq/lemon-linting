@@ -480,10 +480,20 @@ function findEnclosingStatement(node) {
  * @param node Object literal.
  * @returns True when the literal violates the inline policy.
  */
-function isViolating(node) {
+function isViolating(node, sourceFile) {
+    const start = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+    const end = sourceFile.getLineAndCharacterOfPosition(node.getEnd());
     const policyNode = {
         type: "ObjectExpression",
-        properties: toPolicyScopeProperties(node.properties)
+        properties: toPolicyScopeProperties(node.properties),
+        loc: {
+            start: {
+                line: start.line + 1
+            },
+            end: {
+                line: end.line + 1
+            }
+        }
     };
 
     return isViolatingInlineObjectLiteral(policyNode, MAX_SHORTHAND);
@@ -620,7 +630,7 @@ function collectViolations(sourceFile) {
     function visit(node, parent) {
         node.parent = parent;
 
-        if (ts.isObjectLiteralExpression(node) && isViolating(node) && !isExemptInlineObjectLiteralTs(node, parent)) {
+        if (ts.isObjectLiteralExpression(node) && isViolating(node, sourceFile) && !isExemptInlineObjectLiteralTs(node, parent)) {
             nodes.push(node);
         }
 

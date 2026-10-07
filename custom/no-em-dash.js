@@ -2,6 +2,7 @@
 module.exports = {
     meta: {
         type: "problem",
+        fixable: "code",
         docs: {
             description: "Disallow em dash (U+2014) - use ASCII hyphen-minus",
             category: "Style",
@@ -12,24 +13,39 @@ module.exports = {
 
     create(context) {
         const EM_DASH = "\u2014";
+        const sourceCode = context.sourceCode;
 
         return {
             Program(node) {
-                const text = context.sourceCode.getText(node);
+                const text = sourceCode.getText(node);
 
                 if (!text.includes(EM_DASH)) {
                     return;
                 }
 
-                const index = text.indexOf(EM_DASH);
-                const before = text.slice(0, index);
-                const line = before.split("\n").length;
-                const column = before.length - before.lastIndexOf("\n") - 1;
+                let searchFrom = 0;
 
-                context.report({
-                    loc: { line, column },
-                    message: "Em dash (U+2014) is forbidden - use ASCII hyphen '-' instead."
-                });
+                while (searchFrom < text.length) {
+                    const index = text.indexOf(EM_DASH, searchFrom);
+
+                    if (index === -1) {
+                        break;
+                    }
+
+                    const before = text.slice(0, index);
+                    const line = before.split("\n").length;
+                    const column = before.length - before.lastIndexOf("\n") - 1;
+
+                    context.report({
+                        loc: { line, column },
+                        message: "Em dash (U+2014) is forbidden - use ASCII hyphen '-' instead.",
+                        fix(fixer) {
+                            return fixer.replaceTextRange([index, index + 1], "-");
+                        }
+                    });
+
+                    searchFrom = index + 1;
+                }
             }
         };
     }

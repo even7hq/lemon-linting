@@ -528,17 +528,37 @@ function isShorthandOnlyObject(properties) {
 }
 
 /**
- * Returns whether an object literal must be rewritten by the codemod.
+ * Returns true when the object literal `{` and `}` sit on the same source line.
  *
- * Targets packed shorthand bundles (`{ winners, users, abcd }`), not `{ count: 0 }` or mixed objects.
+ * Multiline shorthand objects are allowed; the rule targets one-line packed bundles.
  *
  * @param {import("estree").ObjectExpression} node Object literal expression.
- * @param maxShorthandProperties Maximum shorthand properties allowed inline (default 2).
+ * @returns {boolean} True when the expression spans a single line.
+ */
+function isSingleLineObjectExpression(node) {
+    if (!node.loc) {
+        return false;
+    }
+
+    return node.loc.start.line === node.loc.end.line;
+}
+
+/**
+ * Returns whether an object literal must be rewritten by the codemod.
+ *
+ * Targets single-line shorthand bundles (`{ winners, users, abcd }`), not multiline blocks.
+ *
+ * @param {import("estree").ObjectExpression} node Object literal expression.
+ * @param maxShorthandProperties Maximum shorthand properties allowed on one line (default 2).
  * @returns True when the object literal violates the inline policy.
  */
 function isViolatingInlineObjectLiteral(node, maxShorthandProperties) {
     const maxInlineShorthandProperties = maxShorthandProperties ?? 2;
     const properties = node.properties;
+
+    if (!isSingleLineObjectExpression(node)) {
+        return false;
+    }
 
     if (properties.length <= maxInlineShorthandProperties) {
         return false;
@@ -554,6 +574,7 @@ module.exports = {
     isPrimitiveLiteralExpression,
     isLiteralOnlyInlineObject,
     isShorthandOnlyObject,
+    isSingleLineObjectExpression,
     isCallOrNewArgument,
     isReturnOfExpression,
     isVariableInitializer,

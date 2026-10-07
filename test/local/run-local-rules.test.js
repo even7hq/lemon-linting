@@ -43,7 +43,8 @@ const rules = {
     "lua/require-jsdoc": require("../../custom/lua/require-jsdoc.js"),
     "no-inline-object-literal": require("../../custom/no-inline-object-literal.js"),
     "max-lines": require("../../custom/max-lines.js"),
-    "require-jsdoc-param-returns": require("../../custom/require-jsdoc-param-returns.js")
+    "require-jsdoc-param-returns": require("../../custom/require-jsdoc-param-returns.js"),
+    "require-jsdoc-on-upper-case-const": require("../../custom/require-jsdoc-on-upper-case-const.js")
 };
 
 const tsRuleTester = new RuleTester({
@@ -156,11 +157,31 @@ runRule("no-reflect-typing", () => {
         invalid: [
             {
                 code: "const code = Reflect.get(err, \"code\");",
+                output: "const code = err.code;",
                 errors: [{ message: /Reflect\.get/ }]
             },
             {
                 code: "Reflect.set(target, \"key\", value);",
+                output: "target.key = value;",
                 errors: [{ message: /Reflect\.set/ }]
+            }
+        ]
+    });
+});
+
+runRule("require-jsdoc-on-upper-case-const", () => {
+    tsRuleTester.run("require-jsdoc-on-upper-case-const", rules["require-jsdoc-on-upper-case-const"], {
+        valid: [
+            `/**
+             * Tabs.
+             */
+            const CATALOG_TABS = [];`
+        ],
+
+        invalid: [
+            {
+                code: "const CHANNEL_FILTERS = [];",
+                errors: [{ message: /must have a JSDoc comment/ }]
             }
         ]
     });
@@ -217,6 +238,7 @@ runRule("no-em-dash", () => {
         valid: ["const s = \"ok\";"],
         invalid: [{
             code: "const s = \"a\u2014b\";",
+            output: "const s = \"a-b\";",
             errors: [{ message: /Em dash/ }]
         }]
     });
@@ -463,17 +485,26 @@ runRule("no-inline-object-literal", () => {
                     token: null,
                     expiresIn: null
                 }
+            };`,
+            `const input = {
+                name,
+                sku,
+                category,
+                priceReais,
+                stock,
+                productUrl,
+                imageUrl
             };`
         ],
 
         invalid: [
             {
                 code: "const triple = { a, b, c };",
-                errors: [{ message: /Inline shorthand object literals with more than/ }]
+                errors: [{ message: /Single-line shorthand object literals with more than/ }]
             },
             {
                 code: "return { name, online, id };",
-                errors: [{ message: /Inline shorthand object literals with more than/ }]
+                errors: [{ message: /Single-line shorthand object literals with more than/ }]
             }
         ]
     });

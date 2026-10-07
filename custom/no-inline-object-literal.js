@@ -65,8 +65,8 @@ module.exports = {
                 }
 
                 const message =
-                    "Inline shorthand object literals with more than {{max}} properties are not allowed "
-                    + "(use InlineObjectLiteralFix codemod or emptyObject + assignments). Codemod: {{command}}";
+                    "Single-line shorthand object literals with more than {{max}} properties are not allowed "
+                    + "(use InlineObjectLiteralFix codemod or emptyObject + assignments, or break across lines). Codemod: {{command}}";
 
                 context.report({
                     node,
