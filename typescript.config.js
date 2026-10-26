@@ -1,6 +1,15 @@
 const importPlugin = require("eslint-plugin-import-x");
 const tsPlugin = require("@typescript-eslint/eslint-plugin");
 const tsParser = require("@typescript-eslint/parser");
+const tsTypes = require("@typescript-eslint/types");
+
+// @vue/eslint-config-typescript hoists @typescript-eslint/types@7 above parser 8.
+// types 7 has no TSEnumBody, so enum member identifiers never receive a parent
+// and unused-imports throws while collecting variables. Fill the missing node
+// type when that hoisted package is the one the parser resolves.
+if (tsTypes.AST_NODE_TYPES.TSEnumBody == null) {
+    tsTypes.AST_NODE_TYPES.TSEnumBody = "TSEnumBody";
+}
 
 /**
  * Rules that apply to any file with TypeScript content - .ts, .tsx, .vue <script lang="ts">,
